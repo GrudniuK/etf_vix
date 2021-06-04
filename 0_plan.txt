@@ -1,0 +1,44 @@
+kroki:
+mysl przewodnia - zacznij od czegos prostego i pozniej komplikuj!
+trenowanie modelu w weekkend + predykcja modelu 
+GIT!
+
+0. utils -> wczytanie odpowiednich pakietow
+1. get data -> stworzenie folderu i zapis danych do folderu
+2. label data (w tym optymalizacja) -> raportu i ustalenie finalnych parametrow + wystawienie finalnych lagels
+3. generowanie featerow -> zapis ABT
+4. kroswalidacja + trenowanie -> zapis modelu
+5. predykcja -> decyzja
+6. 
+
+
+
+99. skopiuj skrypty do dziennego katalogu
+
+
+na pozniej:
+[done] * uwzglednij prowizje przy nadawaniu label
+* ramka danych t, t-1, t-2 itd. unormowane do t - można też jakos usredniac. Do rozwazenia w sieciach neuronowych
+* czy w labels_generate parametr smooth nie dawac tylko na przod?
+* Buffet Indicator
+    https://www.parkiet.com/Analizy/304129967-WykresDnia-Wskaznik-Buffetta-alarmuje.html
+    https://finance.yahoo.com/news/buffett-indicator-202500577.html?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAHJ_hNx3JA-vEPNVKWR8g8qK-Dkn4qFx-SWUukDlUGgCjlrPtdHJmw2zObdunYK1EJD9D6reZ8dIY_HTK5eFqpqqhVLDDbkkX2gYaOJVj0sY-tD1JWrRQTorI4Kkaa6-tW2FsbMrVusmim3tb7ju1NSeIwOByT7P5FAmzrEY0h_w
+* wskaznik sentymentu
+    https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
+* Breadth Indicator - liczba akcji wzrostowych
+
+
+
+=======================
+info z pracy
+Korzystamy ze standardów PEP8: https://www.python.org/dev/peps/pep-0008
+Ø  Ograniczamy długość znaków w jednej linii
+Ø  Stosujemy snake_case (https://en.wikipedia.org/wiki/Snake_case) dla nazw zmiennych i nazw funkcji
+Ø  Wszystkie funkcje i zmienne zapisujemy pełnymi, angielskimi nazwami (nie używamy trzyliterowych skrótów poza szczególnymi wyjątkami: np. pd, lgd, max, min) - https://chrisdone.com/posts/german-naming-convention/
+
+Dokumentujemy każdą z funkcji:
+Ø  Stosujemy konwencję ze scikit-learn-a (https://scikit-learn.org/stable/developers/contributing.html#contribute-documentation )
+Ø  Używamy przypisania typów do argumentów: https://docs.python.org/3/library/typing.html oraz zwracanego typu np. create_feature_dictionary(features: list) -> dict:
+Ø  Dla argumentów pomocniczych (takich, które nie przekazują danych, a jedynie parametry) używamy wartości domyślnych https://www.geeksforgeeks.org/default-arguments-in-python/
+Ø  Pod każdą z definicji zmiennych dodajemy stringa z jej opisem, zawierającym jej krótki opis, oraz argumenty i zwracany obiekt
+Staramy się obsługiwać wyjątki tak, aby dawać bardziej czytelną informację (https://docs.python.org/3/tutorial/errors.html)
