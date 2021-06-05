@@ -18,6 +18,8 @@
 #%%
 import yfinance as yf
 
+#################################33
+
 #msft = yf.Ticker("MSFT")
 #hist = msft.history(period="max")
 #hist

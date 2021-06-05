@@ -8,6 +8,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
 from sklearn.utils import shuffle
 import pickle
 from io import BytesIO
@@ -55,6 +56,15 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
             wyniki OOF i OOT dla optymalnego modelu
     """
 
+    """
+    model_name = 'XGBoost' 
+    df_dev = copy.copy(pd_df_dev_upsample)
+    df_oot = copy.copy(pd_df_oot)
+    random_state = 1
+    n_splits = 2 
+    scoring = 'f1'
+    """
+
     #przygotowanie X i y dla dev
     pd_df_dev = shuffle(df_dev, random_state=random_state)
     X = df_dev.drop('target', axis='columns')
@@ -63,15 +73,28 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
     skf = StratifiedKFold(n_splits=n_splits, random_state=None, shuffle=False)
 
     if model_name == 'LogisticRegression':
-        #clf.get_params().keys()
         clf_GridSearchCV_input = make_pipeline(
             SimpleImputer(strategy='mean'), 
             StandardScaler(),
             LogisticRegression(penalty='elasticnet', solver='saga', random_state=random_state))
 
+        #clf_GridSearchCV_input.get_params().keys()
         my_param_grid = {
             'logisticregression__l1_ratio': [0.0, 0.25, 0.5, 0.75, 1.0],
             'logisticregression__C':[0.0001,0.1,1,10,10000]
+            }
+
+    if model_name == 'XGBoost':
+        clf_GridSearchCV_input = make_pipeline(
+            SimpleImputer(strategy='mean'), 
+            StandardScaler(),
+            XGBClassifier(eval_metric = 'logloss', seed = random_state, use_label_encoder = False))
+
+        #clf_GridSearchCV_input.get_params().keys()
+        my_param_grid = {
+            'xgbclassifier__n_estimators': list(range(50, 160, 10)),
+            'xgbclassifier__max_depth': [3, 6, 9],
+            'xgbclassifier__colsample_bytree': [0.7, 1] 
             }
 
     clf_GridSearchCV_output = GridSearchCV(
@@ -80,7 +103,7 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         scoring=scoring,
         refit=True,    #do zastanowienia czy nie powinienem refitowac na calym zbiorze bez upsample 
         cv=skf, 
-        verbose=0, 
+        verbose=1 
         )
 
     clf_GridSearchCV_output.fit(X, y)
@@ -100,6 +123,15 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
     if model_name == 'LogisticRegression':
         pd_df_feature_importance = pd.DataFrame(
             list(clf_GridSearchCV_output.best_estimator_[2].coef_[0]),
+            index = list(X.columns),
+            columns = ['importance_cv']
+        )
+        pd_df_feature_importance['importance_cv_abs']=abs(pd_df_feature_importance['importance_cv'])
+        pd_df_feature_importance = pd_df_feature_importance.sort_values('importance_cv_abs', axis=0, ascending=False)
+
+    if model_name == 'XGBoost':
+        pd_df_feature_importance = pd.DataFrame(
+            list(clf_GridSearchCV_output.best_estimator_[2].feature_importances_),
             index = list(X.columns),
             columns = ['importance_cv']
         )
@@ -171,7 +203,6 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
     pd_df_cv_results.to_excel(writer, sheet_name=model_name, startrow=start_row + pd_df_final_results.shape[0] + 2, startcol=pd_df_feature_importance.shape[1] + 2)
 
     return (clf_final, pd_df_prediction)
-
 
 
 def model_evaluate(pd_df_prediction: pd.DataFrame, pd_df_base: pd.DataFrame, model_name: str, transaction_cost: float,  writer: object) -> None:

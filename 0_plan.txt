@@ -18,6 +18,9 @@ GIT!
 
 na pozniej:
 [done] * uwzglednij prowizje przy nadawaniu label
+* https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
+** https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
+** https://xgboost.readthedocs.io/en/latest/parameter.html#parameters-for-tree-booster
 * ramka danych t, t-1, t-2 itd. unormowane do t - można też jakos usredniac. Do rozwazenia w sieciach neuronowych
 * czy w labels_generate parametr smooth nie dawac tylko na przod?
 * Buffet Indicator

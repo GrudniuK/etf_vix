@@ -130,6 +130,7 @@ pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary')
 #########################################################################################
 #modele
 
+#LogisticRegression
 (clf_final, pd_df_prediction) = utils_models.create_model(
     model_name = 'LogisticRegression', 
     df_dev = copy.copy(pd_df_dev_upsample), 
@@ -141,11 +142,29 @@ pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary')
 )
 
 pickle.dump(clf_final, open(path_output + '/LogisticRegression.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/pd_df_prediction.pickle')
+pd_df_prediction.to_pickle(path_output + '/LogisticRegression_prediction.pickle')
 #pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
 
 utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LogisticRegression', transaction_cost=transaction_cost,  writer=writer)
 
+#XGBoost
+(clf_final, pd_df_prediction) = utils_models.create_model(
+    model_name = 'XGBoost', 
+    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_oot = copy.copy(pd_df_oot), 
+    random_state = random_state, 
+    n_splits = 5, 
+    scoring = 'f1', 
+    writer = writer
+)
+
+pickle.dump(clf_final, open(path_output + '/XGBoost.model', 'wb'))
+pd_df_prediction.to_pickle(path_output + '/XGBoost_prediction.pickle')
+#pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
+
+utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost', transaction_cost=transaction_cost,  writer=writer)
+
+writer.save()
 
 
 #https://xgboost.readthedocs.io/en/latest/index.html
@@ -155,7 +174,7 @@ https://www.kaggle.com/stuarthallows/using-xgboost-with-scikit-learn
 gridsearchcv xgboost early stopping
 https://www.kaggle.com/yantiz/xgboost-gridsearchcv-with-early-stopping-supported
 
-writer.save()
+
 
 #end?
 
