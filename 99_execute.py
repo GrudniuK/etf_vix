@@ -10,6 +10,7 @@
 #pip install matplotlib
 #pip install -U scikit-learn
 #pip install xgboost
+#pip install lightgbm
 
 #deactivate
 #pip freeze
@@ -45,6 +46,8 @@ pd.options.mode.chained_assignment = None  # default='warn'
 current_date = datetime.date(datetime.now()).strftime('%Y%m%d')
 transaction_cost = 0.0029 #0.29%
 random_state = 11235
+my_n_splits = 5
+my_scoring = 'f1'
 xlsx_file = '_' + str(current_date) + '.xlsx'
 
 
@@ -136,8 +139,8 @@ pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary')
     df_dev = copy.copy(pd_df_dev_upsample), 
     df_oot = copy.copy(pd_df_oot), 
     random_state = random_state, 
-    n_splits = 5, 
-    scoring = 'f1', 
+    n_splits = my_n_splits, 
+    scoring = my_scoring, 
     writer = writer
 )
 
@@ -153,8 +156,8 @@ utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_
     df_dev = copy.copy(pd_df_dev_upsample), 
     df_oot = copy.copy(pd_df_oot), 
     random_state = random_state, 
-    n_splits = 5, 
-    scoring = 'f1', 
+    n_splits = my_n_splits, 
+    scoring = my_scoring, 
     writer = writer
 )
 
@@ -163,6 +166,23 @@ pd_df_prediction.to_pickle(path_output + '/XGBoost_prediction.pickle')
 #pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
 
 utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost', transaction_cost=transaction_cost,  writer=writer)
+
+#LightGBM
+(clf_final, pd_df_prediction) = utils_models.create_model(
+    model_name = 'LightGBM', 
+    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_oot = copy.copy(pd_df_oot), 
+    random_state = random_state, 
+    n_splits = my_n_splits, 
+    scoring = my_scoring, 
+    writer = writer
+)
+
+pickle.dump(clf_final, open(path_output + '/LightGBM.model', 'wb'))
+pd_df_prediction.to_pickle(path_output + '/LightGBM_prediction.pickle')
+#pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
+
+utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LightGBM', transaction_cost=transaction_cost,  writer=writer)
 
 writer.save()
 
