@@ -40,7 +40,7 @@ import _02_utils_target as utils_target
 import _03_utils_features as utils_features
 import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
-#reload(utils_models)
+#reload(utils_target)
 
 pd.options.mode.chained_assignment = None  # default='warn'
 current_date = datetime.date(datetime.now()).strftime('%Y%m%d')
@@ -56,7 +56,7 @@ xlsx_file = '_' + str(current_date) + '.xlsx'
 #stworzenie katalogu
 path_output = utils.prepare_directory(current_date)
 print(path_output)
-#path_output = './20210502'
+#path_output = './20210606'
 
 #https://xlsxwriter.readthedocs.io/example_pandas_positioning.html
 writer = pd.ExcelWriter(path_output + '/' + xlsx_file, engine='xlsxwriter')
@@ -71,21 +71,25 @@ pd_df_vix.to_pickle(path_output + '/pd_df_vix.pickle')
 #pd_df_vix = pd.read_pickle(path_output + '/pd_df_vix.pickle')
 
 #optymalizacja parametrow dla wyznaczenia targetu
-pd_df_target_optimize = utils_target.target_optimize(copy.copy(pd_df_base), 5, 3, 3, transaction_cost)
-pd_df_target_optimize
-#potrzebny elemennt do wyboru optymalnych parametrow
-#jakas funkcja karzaca ilosc transakcji
-#->
+pd_df_target_optimize = utils_target.target_optimize(
+    copy.copy(pd_df_base), 
+    param_atr_factor=5, 
+    param_window=5, 
+    param_smooth=5, 
+    transaction_cost=transaction_cost
+    )
 
-########################################################################
-
-
-
-
-
+tuple_target_param = utils_target.target_optimize_set(copy.copy(pd_df_target_optimize), cnt_changes_per_year = 12, writer = writer, pd_df_base = copy.copy(pd_df_base), transaction_cost=transaction_cost)
 
 #generowanie targetu dla optymalnych parametrow i zapis
-pd_df_target = utils_target.target_generate(copy.copy(pd_df_base), 14, 3, 7, 7)[['target']]
+pd_df_target = utils_target.target_generate(
+    df=copy.copy(pd_df_base), 
+    param_atr_base = 14, 
+    param_atr_factor = tuple_target_param[0],
+    param_window = tuple_target_param[1],
+    param_smooth = tuple_target_param[2]    
+    )[['target']]
+
 pd_df_target.to_pickle(path_output + '/pd_df_target.pickle')
 #pd_df_target = pd.read_pickle(path_output + '/pd_df_target.pickle')
 print(pd_df_target['target'].value_counts(normalize=True))
