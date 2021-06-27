@@ -68,6 +68,9 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
 
     #przygotowanie X i y dla dev
     pd_df_dev = shuffle(df_dev, random_state=random_state)
+
+    scale_pos_weight = pd_df_dev['target'].value_counts(normalize=False)[0] / pd_df_dev['target'].value_counts(normalize=False)[1]
+
     X = df_dev.drop('target', axis='columns')
     y = df_dev.target
 
@@ -85,7 +88,7 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
             'logisticregression__C':[0.0001,0.1,1,10,10000]
             }
 
-    if model_name == 'XGBoost':
+    if model_name == 'XGBoost_upsample':
         clf_GridSearchCV_input = make_pipeline(
             SimpleImputer(strategy='mean'), 
             StandardScaler(),
@@ -102,12 +105,47 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
             'xgbclassifier__colsample_bytree': [0.7, 1],
             'xgbclassifier__learning_rate': [0.01, 0.1, 1.0]
             }
+
+    if model_name == 'XGBoost':
+        clf_GridSearchCV_input = make_pipeline(
+            SimpleImputer(strategy='mean'), 
+            StandardScaler(),
+            XGBClassifier(eval_metric = 'logloss', seed = random_state, use_label_encoder = False, scale_pos_weight = scale_pos_weight))
+
+        #clf_GridSearchCV_input.get_params().keys()
+        #https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
+        #https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
+        ##https://xgboost.ai/
+        ##https://xgboost.readthedocs.io/en/latest/python/python_api.html
+        my_param_grid = {
+            'xgbclassifier__n_estimators': list(range(50, 160, 10)),
+            'xgbclassifier__max_depth': [3, 6, 9],
+            'xgbclassifier__colsample_bytree': [0.7, 1],
+            'xgbclassifier__learning_rate': [0.01, 0.1, 1.0]
+            }
+    
+    if model_name == 'LightGBM_upsample':
+        clf_GridSearchCV_input = make_pipeline(
+            SimpleImputer(strategy='mean'), 
+            StandardScaler(),
+            LGBMClassifier(random_state = random_state))
+
+        #clf_GridSearchCV_input.get_params().keys()
+        #https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
+        #https://machinelearningmastery.com/light-gradient-boosted-machine-lightgbm-ensemble/
+        ##https://github.com/microsoft/LightGBM
+        ##https://lightgbm.readthedocs.io/en/latest/Python-API.html
+        my_param_grid = {
+            'lgbmclassifier__n_estimators': list(range(50, 160, 10)),
+            'lgbmclassifier__max_depth': [3, 6, 9],
+            'lgbmclassifier__learning_rate': [0.01, 0.1, 1.0] 
+            }
     
     if model_name == 'LightGBM':
         clf_GridSearchCV_input = make_pipeline(
             SimpleImputer(strategy='mean'), 
             StandardScaler(),
-            LGBMClassifier(random_state = random_state))
+            LGBMClassifier(random_state = random_state, is_unbalance = True))
 
         #clf_GridSearchCV_input.get_params().keys()
         #https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
@@ -152,7 +190,25 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         pd_df_feature_importance['importance_cv_abs']=abs(pd_df_feature_importance['importance_cv'])
         pd_df_feature_importance = pd_df_feature_importance.sort_values('importance_cv_abs', axis=0, ascending=False)
 
+    if model_name == 'XGBoost_upsample':
+        pd_df_feature_importance = pd.DataFrame(
+            list(clf_GridSearchCV_output.best_estimator_[2].feature_importances_),
+            index = list(X.columns),
+            columns = ['importance_cv']
+        )
+        pd_df_feature_importance['importance_cv_abs']=abs(pd_df_feature_importance['importance_cv'])
+        pd_df_feature_importance = pd_df_feature_importance.sort_values('importance_cv_abs', axis=0, ascending=False)
+
     if model_name == 'XGBoost':
+        pd_df_feature_importance = pd.DataFrame(
+            list(clf_GridSearchCV_output.best_estimator_[2].feature_importances_),
+            index = list(X.columns),
+            columns = ['importance_cv']
+        )
+        pd_df_feature_importance['importance_cv_abs']=abs(pd_df_feature_importance['importance_cv'])
+        pd_df_feature_importance = pd_df_feature_importance.sort_values('importance_cv_abs', axis=0, ascending=False)
+
+    if model_name == 'LightGBM_upsample':
         pd_df_feature_importance = pd.DataFrame(
             list(clf_GridSearchCV_output.best_estimator_[2].feature_importances_),
             index = list(X.columns),

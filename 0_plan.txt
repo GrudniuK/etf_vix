@@ -30,8 +30,8 @@ na pozniej:
 * wskaznik sentymentu
     https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
 * Breadth Indicator - liczba akcji wzrostowych
-* XGB ma jakis parametr dla niezbilansowanego zbioru
-* Usuniecie duplikatów, wysoko korelacji – filtr na podstawie macierzy korelacji
+[done] * XGB ma jakis parametr dla niezbilansowanego zbioru
+[done] * Usuniecie duplikatów, wysoko korelacji – filtr na podstawie macierzy korelacji
 * zastanowicc sie czy optymalizowac param_atr_base (teraz na sztywnon param_atr_base = 14)
 
 

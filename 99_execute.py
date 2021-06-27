@@ -21,6 +21,7 @@
 
 
 
+from typing import Counter
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -40,8 +41,9 @@ import _02_utils_target as utils_target
 import _03_utils_features as utils_features
 import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
-#reload(utils_target)
+#reload(utils_features)
 
+optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 pd.options.mode.chained_assignment = None  # default='warn'
 current_date = datetime.date(datetime.now()).strftime('%Y%m%d')
 transaction_cost = 0.0029 #0.29%
@@ -70,16 +72,19 @@ pd_df_vix = yf.Ticker("^VIX").history(period="max") #CBOE Volatility Index (^VIX
 pd_df_vix.to_pickle(path_output + '/pd_df_vix.pickle')
 #pd_df_vix = pd.read_pickle(path_output + '/pd_df_vix.pickle')
 
-#optymalizacja parametrow dla wyznaczenia targetu
-pd_df_target_optimize = utils_target.target_optimize(
-    copy.copy(pd_df_base), 
-    param_atr_factor=5, 
-    param_window=5, 
-    param_smooth=5, 
-    transaction_cost=transaction_cost
-    )
+if optimize_target_flag == True:
+    #optymalizacja parametrow dla wyznaczenia targetu
+    pd_df_target_optimize = utils_target.target_optimize(
+        copy.copy(pd_df_base), 
+        param_atr_factor=5, 
+        param_window=5, 
+        param_smooth=5, 
+        transaction_cost=transaction_cost
+        )
 
-tuple_target_param = utils_target.target_optimize_set(copy.copy(pd_df_target_optimize), cnt_changes_per_year = 12, writer = writer, pd_df_base = copy.copy(pd_df_base), transaction_cost=transaction_cost)
+    tuple_target_param = utils_target.target_optimize_set(copy.copy(pd_df_target_optimize), cnt_changes_per_year = 12, writer = writer, pd_df_base = copy.copy(pd_df_base), transaction_cost=transaction_cost)
+else:
+    tuple_target_param = (1,3,4)
 
 #generowanie targetu dla optymalnych parametrow i zapis
 pd_df_target = utils_target.target_generate(
@@ -109,13 +114,40 @@ pd_df_vix_features.to_pickle(path_output + '/pd_df_vix_features.pickle')
 #pd_df_vix_features = pd.read_pickle(path_output + '/pd_df_vix_features.pickle')
 pd_df_vix_features.shape
 
-#->
-#dodac jeszcze na podstawie dollar bars (cena * wolumen) dla pd_df_vix
-#moze byc problem add_all_ta_features_extended, bo wtedy da duplikaty na wolumenie
+#Dollar Bars
+pd_df_dollar = copy.copy(pd_df_base)
+pd_df_dollar['Open_dollar'] = pd_df_dollar['Open'] * pd_df_dollar['Volume'] / 1000000
+pd_df_dollar['High_dollar'] = pd_df_dollar['High'] * pd_df_dollar['Volume'] / 1000000
+pd_df_dollar['Low_dollar'] = pd_df_dollar['Low'] * pd_df_dollar['Volume'] / 1000000
+pd_df_dollar['Close_dollar'] = pd_df_dollar['Close'] * pd_df_dollar['Volume'] / 1000000
+pd_df_dollar_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_dollar), prefix='dollar_', open="Open_dollar", high="High_dollar", low="Low_dollar", close="Close_dollar", volume="Volume", fillna=True)
+pd_df_dollar_features.shape
+
+#generowanie zmiennych na podstawie lag
+pd_df_base_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_base[['Close']]), prefix = 'base_Close_lag_pr_', param_days = 7)
+pd_df_dollar_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_dollar[['Close']]), prefix = 'dollar_Close_lag_pr_', param_days = 7)
+pd_df_vix_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_vix[['Close']]), prefix = 'vix_Close_lag_pr_', param_days = 7)
 
 #przygotwanie ABT
 pd_df_abt = pd_df_base_features.join(pd_df_vix_features, how="left")
 pd_df_abt = pd_df_abt[pd_df_abt.index >= min(pd_df_vix_features.index)] #to jeszcze nie wiadomo czy dziala
+pd_df_abt = pd_df_abt.join(pd_df_dollar_features, how="left")
+
+pd_df_abt = pd_df_abt.join(pd_df_base_lag_pr, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_dollar_lag_pr, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_vix_lag_pr, how="left")
+
+#pd_df_abt.shape
+#pd_df_abt.columns
+
+#usuniecie wysoce skorelowanych zmiennych
+corr_matrix = pd_df_abt.corr().abs()
+upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+to_drop = [column for column in upper.columns if any(upper[column] > 0.95)]
+pd_df_abt = pd_df_abt.drop(pd_df_abt[to_drop], axis=1)
+pd_df_abt.shape
+
+to_drop
 
 pd_df_abt = pd_df_abt.join(pd_df_target, how="left")
 pd_df_abt.to_pickle(path_output + '/pd_df_abt.pickle')
@@ -154,10 +186,25 @@ pd_df_prediction.to_pickle(path_output + '/LogisticRegression_prediction.pickle'
 
 utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LogisticRegression', transaction_cost=transaction_cost,  writer=writer)
 
+#XGBoost_upsample
+(clf_final, pd_df_prediction) = utils_models.create_model(
+    model_name = 'XGBoost_upsample', 
+    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_oot = copy.copy(pd_df_oot), 
+    random_state = random_state, 
+    n_splits = my_n_splits, 
+    scoring = my_scoring, 
+    writer = writer
+)
+
+pickle.dump(clf_final, open(path_output + '/XGBoost_upsample.model', 'wb'))
+pd_df_prediction.to_pickle(path_output + '/XGBoost_upsample_prediction.pickle')
+utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost_upsample', transaction_cost=transaction_cost,  writer=writer)
+
 #XGBoost
 (clf_final, pd_df_prediction) = utils_models.create_model(
     model_name = 'XGBoost', 
-    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_dev = copy.copy(pd_df_dev), 
     df_oot = copy.copy(pd_df_oot), 
     random_state = random_state, 
     n_splits = my_n_splits, 
@@ -167,14 +214,27 @@ utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_
 
 pickle.dump(clf_final, open(path_output + '/XGBoost.model', 'wb'))
 pd_df_prediction.to_pickle(path_output + '/XGBoost_prediction.pickle')
-#pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
-
 utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost', transaction_cost=transaction_cost,  writer=writer)
+
+#LightGBM_upsample
+(clf_final, pd_df_prediction) = utils_models.create_model(
+    model_name = 'LightGBM_upsample', 
+    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_oot = copy.copy(pd_df_oot), 
+    random_state = random_state, 
+    n_splits = my_n_splits, 
+    scoring = my_scoring, 
+    writer = writer
+)
+
+pickle.dump(clf_final, open(path_output + '/LightGBM_upsample.model', 'wb'))
+pd_df_prediction.to_pickle(path_output + '/LightGBM_upsample_prediction.pickle')
+utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LightGBM_upsample', transaction_cost=transaction_cost,  writer=writer)
 
 #LightGBM
 (clf_final, pd_df_prediction) = utils_models.create_model(
     model_name = 'LightGBM', 
-    df_dev = copy.copy(pd_df_dev_upsample), 
+    df_dev = copy.copy(pd_df_dev), 
     df_oot = copy.copy(pd_df_oot), 
     random_state = random_state, 
     n_splits = my_n_splits, 
@@ -184,8 +244,6 @@ utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_
 
 pickle.dump(clf_final, open(path_output + '/LightGBM.model', 'wb'))
 pd_df_prediction.to_pickle(path_output + '/LightGBM_prediction.pickle')
-#pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
-
 utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LightGBM', transaction_cost=transaction_cost,  writer=writer)
 
 writer.save()

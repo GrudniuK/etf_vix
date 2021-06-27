@@ -187,3 +187,28 @@ Index(['base_volume_adi', 'base_volume_obv', 'base_volume_cmf',
        'base_my_trend_macd_diff_5_35_5', 'base_my_trend_macd_signal_5_35_5'],
       dtype='object')
 """
+
+
+def lag_pr(df: pd.DataFrame, prefix: str, param_days: int) -> pd.DataFrame:
+    """
+    generuje zmienne w oparciu o lag
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        obiekt wejsciowy
+    prefix: str
+        prefix do generowanych zmiennych
+    param_days: int
+        parametr okreslajacy ile sie cofamy
+    Returns
+    -------
+    df: pd.DataFrame
+        obiekt wejsciowy z dodatkowymi zmiennymi z prefixem
+    """
+    for i in range(1,(param_days+1)):
+        df[prefix+str(i)] = df.iloc[: , 0].shift(i) / df.iloc[: , 0]
+    # usuniecie pierwszej kolumny
+    df = df.iloc[: , 1:]
+
+    return df
