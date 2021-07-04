@@ -11,18 +11,20 @@ GIT!
 5. predykcja -> decyzja
 6. 
 
-
-
-99. skopiuj skrypty do dziennego katalogu
+99. skopiuj skrypty do dziennego katalogu - czy potrzebne skoro jest GIT?
 
 
 na pozniej:
-[done] * uwzglednij prowizje przy nadawaniu label
+* RL bez upsample
+* konfiguracja ktore modele sa trenowanie
+* konfiguracja czy trenowanie czy tylko predykcja
+* konfiguracjja wyboru OOT (data odciecia)
+* stacking (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
+* logowanie
 * https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
 ** https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
 ** https://machinelearningmastery.com/light-gradient-boosted-machine-lightgbm-ensemble/
 ** https://xgboost.readthedocs.io/en/latest/parameter.html#parameters-for-tree-booster
-* ramka danych t, t-1, t-2 itd. unormowane do t - można też jakos usredniac. Do rozwazenia w sieciach neuronowych
 * czy w labels_generate parametr smooth nie dawac tylko na przod?
 * Buffet Indicator
     https://www.parkiet.com/Analizy/304129967-WykresDnia-Wskaznik-Buffetta-alarmuje.html
@@ -30,10 +32,11 @@ na pozniej:
 * wskaznik sentymentu
     https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
 * Breadth Indicator - liczba akcji wzrostowych
+* zastanowicc sie czy optymalizowac param_atr_base (teraz na sztywnon param_atr_base = 14)
+[done] * uwzglednij prowizje przy nadawaniu label
 [done] * XGB ma jakis parametr dla niezbilansowanego zbioru
 [done] * Usuniecie duplikatów, wysoko korelacji – filtr na podstawie macierzy korelacji
-* zastanowicc sie czy optymalizowac param_atr_base (teraz na sztywnon param_atr_base = 14)
-
+[done] * ramka danych t, t-1, t-2 itd. unormowane do t - można też jakos usredniac. Do rozwazenia w sieciach neuronowych
 
 =======================
 info z pracy

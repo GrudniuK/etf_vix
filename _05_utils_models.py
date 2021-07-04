@@ -76,6 +76,18 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
 
     skf = StratifiedKFold(n_splits=n_splits, random_state=None, shuffle=False)
 
+    if model_name == 'LogisticRegression_upsample':
+        clf_GridSearchCV_input = make_pipeline(
+            SimpleImputer(strategy='mean'), 
+            StandardScaler(),
+            LogisticRegression(penalty='elasticnet', solver='saga', random_state=random_state))
+
+        #clf_GridSearchCV_input.get_params().keys()
+        my_param_grid = {
+            'logisticregression__l1_ratio': [0.0, 0.25, 0.5, 0.75, 1.0],
+            'logisticregression__C':[0.0001,0.1,1,10,10000]
+            }
+
     if model_name == 'LogisticRegression':
         clf_GridSearchCV_input = make_pipeline(
             SimpleImputer(strategy='mean'), 
@@ -181,6 +193,15 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
     pd_df_final_results['cv_best_score'] = clf_GridSearchCV_output.best_score_
 
     #istotnosc zmiennych
+    if model_name == 'LogisticRegression_upsample':
+        pd_df_feature_importance = pd.DataFrame(
+            list(clf_GridSearchCV_output.best_estimator_[2].coef_[0]),
+            index = list(X.columns),
+            columns = ['importance_cv']
+        )
+        pd_df_feature_importance['importance_cv_abs']=abs(pd_df_feature_importance['importance_cv'])
+        pd_df_feature_importance = pd_df_feature_importance.sort_values('importance_cv_abs', axis=0, ascending=False)
+
     if model_name == 'LogisticRegression':
         pd_df_feature_importance = pd.DataFrame(
             list(clf_GridSearchCV_output.best_estimator_[2].coef_[0]),

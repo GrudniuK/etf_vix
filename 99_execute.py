@@ -1,4 +1,9 @@
 
+training_flag = True #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
+optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
+models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
+
+
 #.venv\scripts\activate
 #instalowanie pakietow:
 #python -m pip install pandas
@@ -17,9 +22,6 @@
 
 # pozyskanie danych OHCL:
 #https://blog.quantinsti.com/historical-market-data-python-api/
-
-
-
 
 from typing import Counter
 import yfinance as yf
@@ -43,7 +45,8 @@ import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
 #reload(utils_features)
 
-optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
+
+
 pd.options.mode.chained_assignment = None  # default='warn'
 current_date = datetime.date(datetime.now()).strftime('%Y%m%d')
 transaction_cost = 0.0029 #0.29%
@@ -169,183 +172,30 @@ pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary')
 #########################################################################################
 #modele
 
-#LogisticRegression
-(clf_final, pd_df_prediction) = utils_models.create_model(
-    model_name = 'LogisticRegression', 
-    df_dev = copy.copy(pd_df_dev_upsample), 
-    df_oot = copy.copy(pd_df_oot), 
-    random_state = random_state, 
-    n_splits = my_n_splits, 
-    scoring = my_scoring, 
-    writer = writer
-)
+if training_flag == True:
 
-pickle.dump(clf_final, open(path_output + '/LogisticRegression.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/LogisticRegression_prediction.pickle')
-#pd_df_prediction = pd.read_pickle(path_output + '/pd_df_prediction.pickle')
+    for model_iter in models_list:
+        (clf_final, pd_df_prediction) = utils_models.create_model(
+            model_name = model_iter, 
+            df_dev = copy.copy(pd_df_dev), #jezeli bym chcial upsample, to trzeba oddzielna liste modeli
+            df_oot = copy.copy(pd_df_oot), 
+            random_state = random_state, 
+            n_splits = my_n_splits, 
+            scoring = my_scoring, 
+            writer = writer
+        )
 
-utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LogisticRegression', transaction_cost=transaction_cost,  writer=writer)
+        pickle.dump((clf_final, str(current_date)), open(path_output + '/' + model_iter + '.model', 'wb'))
+        pickle.dump((clf_final, str(current_date)), open('./_models' + '/' + model_iter + '.model', 'wb')) #zapis do folderu z modelami
+        pd_df_prediction.to_pickle(path_output + '/' + model_iter + '_prediction.pickle')
+        utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name=model_iter, transaction_cost=transaction_cost,  writer=writer)
 
-#XGBoost_upsample
-(clf_final, pd_df_prediction) = utils_models.create_model(
-    model_name = 'XGBoost_upsample', 
-    df_dev = copy.copy(pd_df_dev_upsample), 
-    df_oot = copy.copy(pd_df_oot), 
-    random_state = random_state, 
-    n_splits = my_n_splits, 
-    scoring = my_scoring, 
-    writer = writer
-)
+#w warunku na trenowanie jeszcze trzeba zapisac/skopiowac modele do odpowiedniego
 
-pickle.dump(clf_final, open(path_output + '/XGBoost_upsample.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/XGBoost_upsample_prediction.pickle')
-utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost_upsample', transaction_cost=transaction_cost,  writer=writer)
-
-#XGBoost
-(clf_final, pd_df_prediction) = utils_models.create_model(
-    model_name = 'XGBoost', 
-    df_dev = copy.copy(pd_df_dev), 
-    df_oot = copy.copy(pd_df_oot), 
-    random_state = random_state, 
-    n_splits = my_n_splits, 
-    scoring = my_scoring, 
-    writer = writer
-)
-
-pickle.dump(clf_final, open(path_output + '/XGBoost.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/XGBoost_prediction.pickle')
-utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='XGBoost', transaction_cost=transaction_cost,  writer=writer)
-
-#LightGBM_upsample
-(clf_final, pd_df_prediction) = utils_models.create_model(
-    model_name = 'LightGBM_upsample', 
-    df_dev = copy.copy(pd_df_dev_upsample), 
-    df_oot = copy.copy(pd_df_oot), 
-    random_state = random_state, 
-    n_splits = my_n_splits, 
-    scoring = my_scoring, 
-    writer = writer
-)
-
-pickle.dump(clf_final, open(path_output + '/LightGBM_upsample.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/LightGBM_upsample_prediction.pickle')
-utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LightGBM_upsample', transaction_cost=transaction_cost,  writer=writer)
-
-#LightGBM
-(clf_final, pd_df_prediction) = utils_models.create_model(
-    model_name = 'LightGBM', 
-    df_dev = copy.copy(pd_df_dev), 
-    df_oot = copy.copy(pd_df_oot), 
-    random_state = random_state, 
-    n_splits = my_n_splits, 
-    scoring = my_scoring, 
-    writer = writer
-)
-
-pickle.dump(clf_final, open(path_output + '/LightGBM.model', 'wb'))
-pd_df_prediction.to_pickle(path_output + '/LightGBM_prediction.pickle')
-utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name='LightGBM', transaction_cost=transaction_cost,  writer=writer)
 
 writer.save()
 
-
-#https://xgboost.readthedocs.io/en/latest/index.html
-https://towardsdatascience.com/getting-started-with-xgboost-in-scikit-learn-f69f5f470a97
-https://www.kaggle.com/stuarthallows/using-xgboost-with-scikit-learn
-
-gridsearchcv xgboost early stopping
-https://www.kaggle.com/yantiz/xgboost-gridsearchcv-with-early-stopping-supported
-
-
-
-#end?
-
-
-
-
-
-
-
-
-
-#############################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1
-
-
-
-
-#######################
-
-
-#pobranie danych yfinance
-gspc = yf.Ticker("^GSPC").history(period="max") #S&P 500 (^GSPC) od 1927-12-30
-spy = yf.Ticker("SPY").history(period="max") #SPDR S&P 500 ETF Trust (SPY) od 1993-01-29
-vix = yf.Ticker("^VIX").history(period="max") #CBOE Volatility Index (^VIX) od 1990-01-02
-
-
-
-plt.scatter(pd_df_out['cagr_strategy'],pd_df_out['cnt_change'],c=pd_df_out['param_atr_factor'], s = 0.5)    
-plt.legend()
-plt.show()
-
-fig, ax = plt.subplots()
-scatter = plt.scatter(pd_df_out['cagr_strategy'],pd_df_out['cnt_change'],c=pd_df_out['param_atr_factor'], s = 0.5)    
-legend = ax.legend(*scatter.legend_elements(), loc="lower left", title="Classes")
-ax.add_artist(legend)
-plt.show()
-
-
-
-
-
-#celem powinno byc maksymalizowanie st zwrotu i minimalizowanie liczby transakcji
-
-
-
-
-plt.figure()
-width=1
-width2=0.1
-pricesup=base_label[base_label.target_color=='green']
-pricesdown=base_label[base_label.target_color=='red']
-
-plt.bar(pricesup.index,pricesup.Close-pricesup.Open,width,bottom=pricesup.Open,color='g')
-plt.bar(pricesup.index,pricesup.High-pricesup.Close,width2,bottom=pricesup.Close,color='g')
-plt.bar(pricesup.index,pricesup.Low-pricesup.Open,width2,bottom=pricesup.Open,color='g')
-
-plt.bar(pricesdown.index,pricesdown.Close-pricesdown.Open,width,bottom=pricesdown.Open,color='r')
-plt.bar(pricesdown.index,pricesdown.High-pricesdown.Open,width2,bottom=pricesdown.Open,color='r')
-plt.bar(pricesdown.index,pricesdown.Low-pricesdown.Close,width2, bottom=pricesdown.Close,color='r')
-plt.grid()
-
-plt.show()
-
-
-
-
+#################################
 
 if __name__ == "__main__":
 
