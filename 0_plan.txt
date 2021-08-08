@@ -15,9 +15,12 @@ GIT!
 
 
 na pozniej:
-* RL bez upsample
-* konfiguracja ktore modele sa trenowanie
-* konfiguracja czy trenowanie czy tylko predykcja
+* predykcja
+* weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
+* na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii
+[done] * RL bez upsample
+[done] * konfiguracja ktore modele sa trenowanie
+[done] * konfiguracja czy trenowanie czy tylko predykcja
 * konfiguracjja wyboru OOT (data odciecia)
 * stacking (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
 * logowanie

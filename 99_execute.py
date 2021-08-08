@@ -2,7 +2,7 @@
 training_flag = True #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
-
+#models_list = ['LogisticRegression'] #lista modeli
 
 #.venv\scripts\activate
 #instalowanie pakietow:
@@ -43,7 +43,7 @@ import _02_utils_target as utils_target
 import _03_utils_features as utils_features
 import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
-#reload(utils_features)
+#reload(utils_models)
 
 
 
@@ -61,7 +61,7 @@ xlsx_file = '_' + str(current_date) + '.xlsx'
 #stworzenie katalogu
 path_output = utils.prepare_directory(current_date)
 print(path_output)
-#path_output = './20210606'
+#path_output = './20210708'
 
 #https://xlsxwriter.readthedocs.io/example_pandas_positioning.html
 writer = pd.ExcelWriter(path_output + '/' + xlsx_file, engine='xlsxwriter')
@@ -175,7 +175,7 @@ pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary')
 if training_flag == True:
 
     for model_iter in models_list:
-        (clf_final, pd_df_prediction) = utils_models.create_model(
+        (clf_final, pd_df_prediction, oot_score) = utils_models.create_model(
             model_name = model_iter, 
             df_dev = copy.copy(pd_df_dev), #jezeli bym chcial upsample, to trzeba oddzielna liste modeli
             df_oot = copy.copy(pd_df_oot), 
@@ -185,12 +185,43 @@ if training_flag == True:
             writer = writer
         )
 
-        pickle.dump((clf_final, str(current_date)), open(path_output + '/' + model_iter + '.model', 'wb'))
-        pickle.dump((clf_final, str(current_date)), open('./_models' + '/' + model_iter + '.model', 'wb')) #zapis do folderu z modelami
+        pickle.dump((clf_final, oot_score, str(current_date)), open(path_output + '/' + model_iter + '.model', 'wb'))
+        pickle.dump((clf_final, oot_score, str(current_date)), open('./_models' + '/' + model_iter + '.model', 'wb')) #zapis do folderu z modelami
         pd_df_prediction.to_pickle(path_output + '/' + model_iter + '_prediction.pickle')
         utils_models.model_evaluate(pd_df_prediction=copy.copy(pd_df_prediction), pd_df_base=copy.copy(pd_df_base), model_name=model_iter, transaction_cost=transaction_cost,  writer=writer)
 
-#w warunku na trenowanie jeszcze trzeba zapisac/skopiowac modele do odpowiedniego
+    #ensemble
+    prediction_list = []
+    for model_name in models_list:
+        prediction_list.append(
+                (
+                    pickle.load(open(path_output + '/' + model_name + '_prediction.pickle', 'rb')),
+                    pickle.load(open(path_output + '/' + model_name + '.model', 'rb'))[1],
+                    pickle.load(open(path_output + '/' + model_name + '.model', 'rb'))[2]
+                )
+            )
+
+    pd_df_ensemble = utils_models.ensemble_generate(prediction_list = prediction_list, models_list=models_list)
+    
+    utils_models.ensemble_evaluate(pd_df_ensemble=copy.copy(pd_df_ensemble), pd_df_base=copy.copy(pd_df_base), transaction_cost=transaction_cost, writer=writer)
+
+
+
+
+
+
+
+
+
+#predyckja dla najnowsych danych
+pd_df_pred = copy.copy(pd_df_oot.tail(5))
+
+prediction_list = []
+for model_name in models_list:
+    prediction_list.append(utils_models.prediction(df = pd_df_pred, model_name = model_name))
+
+pd_df_prediction_new = utils_models.ensemble_generate(prediction_list = prediction_list, models_list=models_list)
+
 
 
 writer.save()
