@@ -1,5 +1,5 @@
 
-training_flag = True #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
+training_flag = False #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
 #models_list = ['LogisticRegression'] #lista modeli
@@ -207,12 +207,6 @@ if training_flag == True:
 
 
 
-
-
-
-
-
-
 #predyckja dla najnowsych danych
 pd_df_pred = copy.copy(pd_df_oot.tail(5))
 
@@ -221,8 +215,18 @@ for model_name in models_list:
     prediction_list.append(utils_models.prediction(df = pd_df_pred, model_name = model_name))
 
 pd_df_prediction_new = utils_models.ensemble_generate(prediction_list = prediction_list, models_list=models_list)
+pd_df_prediction_new.to_excel(writer, sheet_name='prediction') 
 
+#generuj wersje modeli
+model_version_list = []
+for model_name in models_list:
+    model_version_list.append(
+        (model_name,
+        pickle.load(open('./_models' + '/' + model_name + '.model', 'rb'))[2])
+        )
 
+pd_df_model_version = pd.DataFrame(model_version_list, columns=['model', 'version'])
+pd_df_model_version.to_excel(writer, sheet_name='model_version') 
 
 writer.save()
 
