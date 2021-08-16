@@ -1,5 +1,5 @@
 
-training_flag = False #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
+training_flag = True #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
 #models_list = ['LogisticRegression'] #lista modeli
@@ -160,9 +160,12 @@ pd_df_abt.to_pickle(path_output + '/pd_df_abt.pickle')
 pd_df_abt_describe = utils_abt_dev_oot.abt_summary(pd_df_abt)
 pd_df_abt_describe.to_excel(writer, sheet_name='pd_df_abt_describe') 
 
-
-
-pd_df_dev, pd_df_dev_upsample, pd_df_oot, pd_df_dev_oot_summary = utils_abt_dev_oot.generate_dev_oot(pd_df_abt, '2020-01-01', 0.05, random_state)
+pd_df_dev, pd_df_dev_upsample, pd_df_oot, pd_df_dev_oot_summary = utils_abt_dev_oot.generate_dev_oot(
+    df = pd_df_abt, 
+    break_date = pd_df_abt.tail(250).index.min(), #'2020-01-01', do OOT bierzemy ostatnie 250 sesji czyli okolo 1 rok
+    upsample_target_share = 0.05, 
+    random_state = random_state
+)
 pd_df_dev.to_pickle(path_output + '/pd_df_dev.pickle')
 pd_df_dev_upsample.to_pickle(path_output + '/pd_df_dev_upsample.pickle')
 pd_df_oot.to_pickle(path_output + '/pd_df_oot.pickle')
@@ -210,6 +213,17 @@ if training_flag == True:
 #predyckja dla najnowsych danych
 pd_df_pred = copy.copy(pd_df_oot.tail(5))
 
+#wygenerowanie danych do sprawdzenia target_evaluate
+#pd_df_pred = copy.copy(pd_df_oot)
+#dopisanie  CLose
+#pd_df_pred = pd_df_pred.join(pd_df_base[['Close']])
+#tmp = utils_target.target_evaluate(copy.copy(pd_df_pred), 'target', transaction_cost)
+#tmp_0 = tmp[0]
+#tmp_1 = tmp[1]
+#tmp_1 = tmp_1.join(pd_df_pred[['Close','target']])
+#tmp_0.to_excel(writer, sheet_name='spr_0') 
+#tmp_1.to_excel(writer, sheet_name='spr_1') 
+
 prediction_list = []
 for model_name in models_list:
     prediction_list.append(utils_models.prediction(df = pd_df_pred, model_name = model_name))
@@ -231,7 +245,5 @@ pd_df_model_version.to_excel(writer, sheet_name='model_version')
 writer.save()
 
 #################################
+#if __name__ == "__main__":
 
-if __name__ == "__main__":
-
-writer.save()

@@ -15,14 +15,16 @@ GIT!
 
 
 na pozniej:
-* predykcja
-* weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
+* sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
+* usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
+[done] * predykcja
+[done] * weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
 * na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii
 [done] * RL bez upsample
 [done] * konfiguracja ktore modele sa trenowanie
 [done] * konfiguracja czy trenowanie czy tylko predykcja
 * konfiguracjja wyboru OOT (data odciecia)
-* stacking (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
+[done] * ensembling (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
 * logowanie
 * https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
 ** https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
