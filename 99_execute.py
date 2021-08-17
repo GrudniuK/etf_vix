@@ -1,8 +1,19 @@
 
-training_flag = True #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
+
+import sys, getopt
+
+argv = sys.argv[1:]
+opts, args = getopt.getopt(argv,"t:")
+
+if opts[0][1] == 'True': training_flag = True
+elif opts[0][1] == 'False': training_flag = False
+else: training_flag = '???'
+
+#ponizsza flaga ustawiana jako paramatr w BAT
+#training_flag = False #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
-#models_list = ['LogisticRegression'] #lista modeli
+#models_list = ['LightGBM'] #lista modeli
 
 #.venv\scripts\activate
 #instalowanie pakietow:
@@ -61,7 +72,7 @@ xlsx_file = '_' + str(current_date) + '.xlsx'
 #stworzenie katalogu
 path_output = utils.prepare_directory(current_date)
 print(path_output)
-#path_output = './20210708'
+#path_output = './20210816'
 
 #https://xlsxwriter.readthedocs.io/example_pandas_positioning.html
 writer = pd.ExcelWriter(path_output + '/' + xlsx_file, engine='xlsxwriter')
@@ -211,7 +222,7 @@ if training_flag == True:
 
 
 #predyckja dla najnowsych danych
-pd_df_pred = copy.copy(pd_df_oot.tail(5))
+pd_df_pred = copy.copy(pd_df_oot.tail(25))
 
 #wygenerowanie danych do sprawdzenia target_evaluate
 #pd_df_pred = copy.copy(pd_df_oot)
@@ -243,6 +254,8 @@ pd_df_model_version = pd.DataFrame(model_version_list, columns=['model', 'versio
 pd_df_model_version.to_excel(writer, sheet_name='model_version') 
 
 writer.save()
+
+print('Koniec!')
 
 #################################
 #if __name__ == "__main__":

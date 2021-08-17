@@ -453,12 +453,20 @@ def ensemble_generate(prediction_list: list, models_list: list) -> pd.DataFrame:
     pd_df_pred['weight_pred_1'] = np.where(pd_df_pred['weight_prob_1'] > 0.5, 1, 0)
 
     #srednia arytmetyczna prob_1
-    pd_df_pred['average_prob_1'] = pd_df_pred[models_list_prob_1].sum(axis=1) / 3
+    pd_df_pred['average_prob_1'] = pd_df_pred[models_list_prob_1].sum(axis=1) / len(models_list)
     pd_df_pred['average_pred_1'] = np.where(pd_df_pred['average_prob_1'] > 0.5, 1, 0)
 
     #glosowanie na podstawie pred_1
     pd_df_pred['voting_prob_1'] = pd_df_pred[models_list_pred].sum(axis=1) / 3
     pd_df_pred['voting_pred_1'] = np.where(pd_df_pred['voting_prob_1'] > 0.5, 1, 0)
+
+    #wygladzenie predykcji dla momdeli podstawowych
+    for model in models_list:
+        pd_df_pred[model + '_smooth_pred'] = np.where(
+            (pd_df_pred[model + '_pred'] == 1) & (pd_df_pred[model + '_pred'].shift(1) == 1) & (pd_df_pred[model + '_pred'].shift(2) == 1),
+            1, 
+            0
+        )
 
     return pd_df_pred
 
