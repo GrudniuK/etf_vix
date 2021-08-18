@@ -246,11 +246,10 @@ pd_df_dev, pd_df_dev_upsample, pd_df_oot, pd_df_dev_oot_summary = utils_abt_dev_
     upsample_target_share = 0.05, 
     random_state = random_state
 )
-pd_df_dev.to_pickle(path_output + '/pd_df_dev.pickle')
-pd_df_dev_upsample.to_pickle(path_output + '/pd_df_dev_upsample.pickle')
-pd_df_oot.to_pickle(path_output + '/pd_df_oot.pickle')
+#pd_df_dev.to_pickle(path_output + '/pd_df_dev.pickle')
+#pd_df_dev_upsample.to_pickle(path_output + '/pd_df_dev_upsample.pickle')
+#pd_df_oot.to_pickle(path_output + '/pd_df_oot.pickle')
 pd_df_dev_oot_summary.to_excel(writer, sheet_name='pd_df_dev_oot_summary') 
-#tutaj dorobic jeszcze wyniki dla oot
 
 #########################################################################################
 #modele
