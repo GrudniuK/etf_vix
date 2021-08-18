@@ -87,7 +87,8 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         #clf_GridSearchCV_input.get_params().keys()
         my_param_grid = {
             'logisticregression__l1_ratio': [0.0, 0.25, 0.5, 0.75, 1.0],
-            'logisticregression__C':[0.0001,0.1,1,10,10000]
+            'logisticregression__C':[0.1,1,10],
+            'logisticregression__class_weight': ['balanced',None]
             }
 
     if model_name == 'LogisticRegression':
@@ -99,7 +100,8 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         #clf_GridSearchCV_input.get_params().keys()
         my_param_grid = {
             'logisticregression__l1_ratio': [0.0, 0.25, 0.5, 0.75, 1.0],
-            'logisticregression__C':[0.0001,0.1,1,10,10000]
+            'logisticregression__C':[0.1,1,10],
+            'logisticregression__class_weight': ['balanced',None]
             }
 
     if model_name == 'XGBoost_upsample':
@@ -133,9 +135,9 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         ##https://xgboost.readthedocs.io/en/latest/python/python_api.html
         my_param_grid = {
             'xgbclassifier__n_estimators': list(range(50, 160, 10)),
-            'xgbclassifier__max_depth': [3, 6, 9],
-            'xgbclassifier__colsample_bytree': [0.7, 1],
-            'xgbclassifier__learning_rate': [0.01, 0.1, 1.0]
+            'xgbclassifier__max_depth': [2, 3, 5],
+            'xgbclassifier__colsample_bytree': [0.5, 0.7, 0.8],
+            'xgbclassifier__learning_rate': [0.005, 0.01, 0.1]
             }
     
     if model_name == 'LightGBM_upsample':
@@ -167,9 +169,9 @@ def create_model(model_name: str, df_dev: pd.DataFrame, df_oot: pd.DataFrame, ra
         ##https://github.com/microsoft/LightGBM
         ##https://lightgbm.readthedocs.io/en/latest/Python-API.html
         my_param_grid = {
-            'lgbmclassifier__n_estimators': list(range(50, 160, 10)),
-            'lgbmclassifier__max_depth': [3, 6, 9],
-            'lgbmclassifier__learning_rate': [0.01, 0.1, 1.0] 
+            'lgbmclassifier__n_estimators': list(range(50, 200, 10)),
+            'lgbmclassifier__max_depth': [2, 3, 5],
+            'lgbmclassifier__learning_rate': [0.05, 0.01, 0.1] 
             }
 
     clf_GridSearchCV_output = GridSearchCV(
