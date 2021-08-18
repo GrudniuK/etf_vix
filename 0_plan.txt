@@ -15,15 +15,15 @@ GIT!
 
 
 na pozniej:
-* sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
-* usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
+[done] * sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
+[done] * usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
 [done] * predykcja
 [done] * weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
 * na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii
 [done] * RL bez upsample
 [done] * konfiguracja ktore modele sa trenowanie
 [done] * konfiguracja czy trenowanie czy tylko predykcja
-* konfiguracjja wyboru OOT (data odciecia)
+[done] * konfiguracjja wyboru OOT (data odciecia)
 [done] * ensembling (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
 * logowanie
 * https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
@@ -34,6 +34,9 @@ na pozniej:
 * Buffet Indicator
     https://www.parkiet.com/Analizy/304129967-WykresDnia-Wskaznik-Buffetta-alarmuje.html
     https://finance.yahoo.com/news/buffett-indicator-202500577.html?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAHJ_hNx3JA-vEPNVKWR8g8qK-Dkn4qFx-SWUukDlUGgCjlrPtdHJmw2zObdunYK1EJD9D6reZ8dIY_HTK5eFqpqqhVLDDbkkX2gYaOJVj0sY-tD1JWrRQTorI4Kkaa6-tW2FsbMrVusmim3tb7ju1NSeIwOByT7P5FAmzrEY0h_w
+    https://finance.yahoo.com/news/buffett-indicator-202500577.html
+        https://finance.yahoo.com/quote/%5EW5000?p=%5EW5000
+        
 * wskaznik sentymentu
     https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
 * Breadth Indicator - liczba akcji wzrostowych

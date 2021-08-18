@@ -78,12 +78,76 @@ print(path_output)
 writer = pd.ExcelWriter(path_output + '/' + xlsx_file, engine='xlsxwriter')
 
 #pobierz dane
-pd_df_base = yf.Ticker("SPY").history(period="max") #SPDR S&P 500 ETF Trust (SPY) od 1993-01-29
-pd_df_base.to_pickle(path_output + '/pd_df_base.pickle')
+#pd_df_base = yf.Ticker("^GSPC").history(period="max")
+pd_df_base = yf.Ticker("^GSPC").history(start="1985-01-01")
+#S&P 500 (^GSPC) SNP - SNP Real Time Price. Currency in USD 
+#od 1927-12-30
+
+#pd_df_base.to_pickle(path_output + '/pd_df_base.pickle')
 #pd_df_base = pd.read_pickle(path_output + '/pd_df_base.pickle')
 
+#wyszukanie na BOSSA po frazie "500"
+
+"""
+Wybrany zostal ^GSPC poniewaz:
+1. jest to odwzorowanie iindeksu wiec np. zawiera poprawny wolumen
+2. jest w USD i w takiej walucie bede miec ETF w Bossa
+3. ETF sa zgodne z ^SP500TR, ale ten nie ma wolumenu
+4. roznie na moje potrzeby pomiedzy ^GSPC i ^SP500TR sa zaniedbywalne
+
+GSPC = yf.Ticker("^GSPC").history(period="max") 
+#S&P 500 (^GSPC) SNP - SNP Real Time Price. Currency in USD 
+#od 1927-12-30
+GSPC.tail(5)
+GSPC.index.min()
+GSPC['GSPC'] = GSPC['Close']
+GSPC = GSPC[['GSPC']]
+
+VUAA = yf.Ticker("VUAA.L").history(period="max") 
+#Vanguard S&P 500 UCITS ETF acc USD (VUAA)
+#od 2019-05-14
+VUAA.tail(5)
+VUAA.index.min()
+VUAA['VUAA'] = VUAA['Close']
+VUAA = VUAA[['VUAA']]
+
+SP500TR = yf.Ticker("^SP500TR").history(period="max") 
+#S&P 500 (TR) (^SP500TR) SNP - SNP Real Time Price. Currency in USD 
+#od 1988-01-04
+SP500TR.tail(5)
+SP500TR.index.min()
+SP500TR['SP500TR'] = SP500TR['Close']
+SP500TR = SP500TR[['SP500TR']]
+
+SPY = yf.Ticker("SPY").history(period="max") 
+#SPDR S&P 500 ETF Trust (SPY) 
+#od 1993-01-29
+SPY.index.min()
+SPY['SPY'] = SPY['Close']
+SPY = SPY[['SPY']]
+
+all = VUAA.join(GSPC, how="inner")
+all = all.join(SPY, how="inner")
+all = all.join(SP500TR, how="inner")
+
+all.index.min()
+
+all['SPY_roc'] = all['SPY'] / float(all.head(1)['SPY']) - 1
+all['VUAA_roc'] = all['VUAA'] / float(all.head(1)['VUAA']) - 1
+all['GSPC_roc'] = all['GSPC'] / float(all.head(1)['GSPC']) - 1
+all['SP500TR_roc'] = all['SP500TR'] / float(all.head(1)['SP500TR']) - 1
+
+corr_matrix = all.corr()
+corr_matrix
+
+
+all[['VUAA_roc','GSPC_roc','SPY_roc','SP500TR_roc']].plot()
+plt.show()
+
+"""
+
 pd_df_vix = yf.Ticker("^VIX").history(period="max") #CBOE Volatility Index (^VIX) od 1990-01-02
-pd_df_vix.to_pickle(path_output + '/pd_df_vix.pickle')
+#pd_df_vix.to_pickle(path_output + '/pd_df_vix.pickle')
 #pd_df_vix = pd.read_pickle(path_output + '/pd_df_vix.pickle')
 
 if optimize_target_flag == True:
@@ -109,7 +173,7 @@ pd_df_target = utils_target.target_generate(
     param_smooth = tuple_target_param[2]    
     )[['target']]
 
-pd_df_target.to_pickle(path_output + '/pd_df_target.pickle')
+#pd_df_target.to_pickle(path_output + '/pd_df_target.pickle')
 #pd_df_target = pd.read_pickle(path_output + '/pd_df_target.pickle')
 print(pd_df_target['target'].value_counts(normalize=True))
 print(pd_df_target['target'].value_counts(normalize=False))
@@ -118,13 +182,13 @@ print(pd_df_target['target'].value_counts(normalize=False))
 
 #na podstawie pd_df_base
 pd_df_base_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_base), prefix='base_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
-pd_df_base_features.to_pickle(path_output + '/pd_df_base_features.pickle')
+#pd_df_base_features.to_pickle(path_output + '/pd_df_base_features.pickle')
 #pd_df_base_features = pd.read_pickle(path_output + '/pd_df_base_features.pickle')
 pd_df_base_features.shape
 
 #na podstawie pd_df_vix
 pd_df_vix_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_vix), prefix='vix_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
-pd_df_vix_features.to_pickle(path_output + '/pd_df_vix_features.pickle')
+#pd_df_vix_features.to_pickle(path_output + '/pd_df_vix_features.pickle')
 #pd_df_vix_features = pd.read_pickle(path_output + '/pd_df_vix_features.pickle')
 pd_df_vix_features.shape
 
@@ -143,8 +207,13 @@ pd_df_dollar_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_dollar[['Close'
 pd_df_vix_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_vix[['Close']]), prefix = 'vix_Close_lag_pr_', param_days = 7)
 
 #przygotwanie ABT
-pd_df_abt = pd_df_base_features.join(pd_df_vix_features, how="left")
-pd_df_abt = pd_df_abt[pd_df_abt.index >= min(pd_df_vix_features.index)] #to jeszcze nie wiadomo czy dziala
+pd_df_vix_features.shape
+pd_df_abt = pd_df_base_features.join(pd_df_vix_features, how="inner")
+pd_df_abt.shape #tyle samo co pd_df_vix_features wiec ok
+
+#ponizsze zalatwione przez laczenie "inner"
+#pd_df_abt = pd_df_base_features.join(pd_df_vix_features, how="left")
+#pd_df_abt = pd_df_abt[pd_df_abt.index >= min(pd_df_vix_features.index)] #to jeszcze nie wiadomo czy dziala
 pd_df_abt = pd_df_abt.join(pd_df_dollar_features, how="left")
 
 pd_df_abt = pd_df_abt.join(pd_df_base_lag_pr, how="left")
@@ -164,7 +233,7 @@ pd_df_abt.shape
 to_drop
 
 pd_df_abt = pd_df_abt.join(pd_df_target, how="left")
-pd_df_abt.to_pickle(path_output + '/pd_df_abt.pickle')
+#pd_df_abt.to_pickle(path_output + '/pd_df_abt.pickle')
 #pd_df_abt = pd.read_pickle(path_output + '/pd_df_abt.pickle')
 
 #wygenerowanie podsumowania dla ABT
