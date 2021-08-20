@@ -2,6 +2,7 @@ kroki:
 mysl przewodnia - zacznij od czegos prostego i pozniej komplikuj!
 trenowanie modelu w weekkend + predykcja modelu 
 GIT!
+jak bedzie dobrze dzialalo to mozna to zwiekszyc stosujac levarowanie
 
 0. utils -> wczytanie odpowiednich pakietow
 1. get data -> stworzenie folderu i zapis danych do folderu
@@ -15,6 +16,10 @@ GIT!
 
 
 na pozniej:
+* fbprophet
+    https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
+[done] * dodanie OHLC do outputu predykcji do XLSX
+[done] * wyplucie predykcji do TXT
 [done] * sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
 [done] * usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
 [done] * predykcja

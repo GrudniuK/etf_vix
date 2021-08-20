@@ -15,29 +15,14 @@ optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja tar
 models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
 #models_list = ['LightGBM'] #lista modeli
 
-#.venv\scripts\activate
-#instalowanie pakietow:
-#python -m pip install pandas
-#pip install ta
-#   https://github.com/bukosabino/ta
-#   https://technical-analysis-library-in-python.readthedocs.io/en/latest/
-#pip install yfinance
-# https://github.com/ranaroussi/yfinance
-#pip install matplotlib
-#pip install -U scikit-learn
-#pip install xgboost
-#pip install lightgbm
-
-#deactivate
-#pip freeze
 
 # pozyskanie danych OHCL:
 #https://blog.quantinsti.com/historical-market-data-python-api/
 
 from typing import Counter
 import yfinance as yf
-import pandas as pd
 import numpy as np
+import pandas as pd
 from datetime import datetime
 import os
 import ta
@@ -308,6 +293,7 @@ for model_name in models_list:
     prediction_list.append(utils_models.prediction(df = pd_df_pred, model_name = model_name))
 
 pd_df_prediction_new = utils_models.ensemble_generate(prediction_list = prediction_list, models_list=models_list)
+pd_df_prediction_new = pd_df_prediction_new.join(pd_df_base, how="left")
 pd_df_prediction_new.to_excel(writer, sheet_name='prediction') 
 
 #generuj wersje modeli
@@ -322,6 +308,8 @@ pd_df_model_version = pd.DataFrame(model_version_list, columns=['model', 'versio
 pd_df_model_version.to_excel(writer, sheet_name='model_version') 
 
 writer.save()
+
+print(pd_df_prediction_new[['LightGBM_pred','LightGBM_prob_1']])
 
 print('Koniec!')
 
