@@ -1,10 +1,16 @@
+"""
+https://github.com/bukosabino/ta
+https://github.com/bukosabino/ta/blob/master/ta/wrapper.py
+https://technical-analysis-library-in-python.readthedocs.io/en/latest/index.html
 
+"""
 
+import copy
 import pandas as pd
 import numpy as np
 import ta
 
-def sma_short_long(df: pd.DataFrame, prefix: str, sma_window_short: int, sma_window_long: int) -> pd.DataFrame:
+def sma_short_long(df: pd.DataFrame, prefix: str, column_name: str, sma_window_short: int, sma_window_long: int) -> pd.DataFrame:
     """
     generuje zmienne w oparciu o SMA
 
@@ -14,6 +20,8 @@ def sma_short_long(df: pd.DataFrame, prefix: str, sma_window_short: int, sma_win
         obiekt wejsciowy
     prefix: str
         prefix do generowanych zmiennych (zwykle ticker)
+    column_name: str
+        nazwa kolumny dla ktorej liczymy dodatkowe zmienne
     sma_window_short: int
         parametr przekazywany do SMA (short)
     sma_window_long: int
@@ -24,15 +32,15 @@ def sma_short_long(df: pd.DataFrame, prefix: str, sma_window_short: int, sma_win
         obiekt wejsciowy z dodatkowymi zmiennymi z prefixem
     """
 
-    df[prefix+'_SMA_'+str(sma_window_short)] = ta.trend.sma_indicator(df['Close'], window=sma_window_short, fillna=False)
-    df[prefix+'_SMA_'+str(sma_window_long)] = ta.trend.sma_indicator(df['Close'], window=sma_window_long, fillna=False)
+    df[prefix+column_name+'_SMA_'+str(sma_window_short)] = ta.trend.sma_indicator(df[column_name], window=sma_window_short, fillna=False)
+    df[prefix+column_name+'_SMA_'+str(sma_window_long)] = ta.trend.sma_indicator(df[column_name], window=sma_window_long, fillna=False)
 
-    df[prefix+'_Close_pr_SMA_'+str(sma_window_short)] = df['Close'] / df[prefix+'_SMA_'+str(sma_window_short)]
-    df[prefix+'_Close_pr_SMA_'+str(sma_window_long)] = df['Close'] / df[prefix+'_SMA_'+str(sma_window_long)]
-    df[prefix+'_SMA_'+str(sma_window_short)+'_pr_SMA_'+str(sma_window_long)] = df[prefix+'_SMA_'+str(sma_window_short)] / df[prefix+'_SMA_'+str(sma_window_long)]
+    df[prefix+column_name+'_pr_SMA_'+str(sma_window_short)] = df[column_name] / df[prefix+column_name+'_SMA_'+str(sma_window_short)]
+    df[prefix+column_name+'_pr_SMA_'+str(sma_window_long)] = df[column_name] / df[prefix+column_name+'_SMA_'+str(sma_window_long)]
+    df[prefix+column_name+'_SMA_'+str(sma_window_short)+'_pr_SMA_'+str(sma_window_long)] = df[prefix+column_name+'_SMA_'+str(sma_window_short)] / df[prefix+column_name+'_SMA_'+str(sma_window_long)]
 
     #usuniecie niepotrzebnych zmiennych
-    df = df.drop([prefix+'_SMA_'+str(sma_window_short), prefix+'_SMA_'+str(sma_window_long)], axis = 'columns')
+    #df = df.drop([prefix+'_SMA_'+str(sma_window_short), prefix+'_SMA_'+str(sma_window_long)], axis = 'columns')
 
     return df
 
@@ -89,6 +97,7 @@ def rsi_add_features(df: pd.DataFrame, prefix: str, rsi_window: int) -> pd.DataF
 def add_all_ta_features_extended(df: pd.DataFrame, prefix: str, open: str, high: str, low: str, close: str, volume: str, fillna: bool) -> pd.DataFrame:
     """
     generuje wszystkie dostepne wskazniki z TA plus ewentualnie dodatkowe zmienne
+    https://github.com/bukosabino/ta/blob/master/ta/wrapper.py
 
     Parameters
     ----------
@@ -212,3 +221,61 @@ def lag_pr(df: pd.DataFrame, prefix: str, param_days: int) -> pd.DataFrame:
     df = df.iloc[: , 1:]
 
     return df
+
+"""
+df = copy.copy(pd_df_base_features)
+df = df.join(pd_df_base, how='left')
+df = df[df.index >= '2020-01-01']
+df.columns
+"""
+
+def channel_features(df: pd.DataFrame, prefix: str, high_band: str, low_band: str, current_value: str, sma_window_short: int, sma_window_long: int) -> pd.DataFrame:
+    """
+    generuje zmienne dla wskaznikow opartych o kanal
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        obiekt wejsciowy
+    prefix: str
+        prefix do generowanych zmiennych
+    high_band: str
+        nazwa kolumny dla granicy gornej
+    low_band: str
+        nazwa kolumny dla granicy dolnej
+    current_value: str
+        nazwa kolumny dla wartosci dla ktorej liczone sa granice gorna i dolna
+    sma_window_short: int
+        parametr przekazywany do SMA (short)
+    sma_window_long: int
+        parametr przekazywany do SMA (long)
+    Returns
+    -------
+    df: pd.DataFrame
+        obiekt wejsciowy z dodatkowymi zmiennymi z prefixem
+    """
+
+
+    """
+    prefix = 'Keltner_Channel'
+    high_band = 'base_volatility_kch'
+    low_band = 'base_volatility_kcl'
+    current_value = 'Close'
+
+    sma_window_short=5
+    sma_window_long=20
+    """
+
+    var_name = prefix + '_min_max'
+    df[var_name] = (df[current_value] - df[low_band]) / (df[high_band] - df[low_band]) #wyliczenie zmiennej w oparciu o granice gorna i dolna
+    df = sma_short_long(df=df, prefix='', column_name=var_name, sma_window_short=sma_window_short, sma_window_long=sma_window_long)
+    return df
+
+"""
+powyzsze można wywolywac na liscie toupli
+
+channels_list = [
+    ('Keltner_Channel','base_volatility_kch','base_volatility_kcl','Close')
+]
+"""
+

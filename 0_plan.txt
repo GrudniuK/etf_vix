@@ -18,34 +18,51 @@ jak bedzie dobrze dzialalo to mozna to zwiekszyc stosujac levarowanie
 na pozniej:
 * fbprophet
     https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
-[done] * dodanie OHLC do outputu predykcji do XLSX
-[done] * wyplucie predykcji do TXT
-[done] * sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
-[done] * usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
-[done] * predykcja
-[done] * weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
-* na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii
-[done] * RL bez upsample
-[done] * konfiguracja ktore modele sa trenowanie
-[done] * konfiguracja czy trenowanie czy tylko predykcja
-[done] * konfiguracjja wyboru OOT (data odciecia)
-[done] * ensembling (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
+    stworzyc funkcje ktora bedziie zwracac liste datadla ktorych trzeba wyliczyc prophet
+* Klasteryzacja OHLC (przedzielenie przez Close da wymiar R3)
+* Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
+* Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
+* Fractal Indicator: https://www.investopedia.com/terms/f/fractal.asp
+* dodac do podsumowania roczne stopy zwrotu
+* dodac do podsumowania maksymalne obsuniecie
+    https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
+    https://quant.stackexchange.com/questions/18094/how-can-i-calculate-the-maximum-drawdown-mdd-in-python/18101
+* majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
+* na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii (lub wogole okresy pandemii)
 * logowanie
-* https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
-** https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
-** https://machinelearningmastery.com/light-gradient-boosted-machine-lightgbm-ensemble/
-** https://xgboost.readthedocs.io/en/latest/parameter.html#parameters-for-tree-booster
 * czy w labels_generate parametr smooth nie dawac tylko na przod?
 * Buffet Indicator
     https://www.parkiet.com/Analizy/304129967-WykresDnia-Wskaznik-Buffetta-alarmuje.html
     https://finance.yahoo.com/news/buffett-indicator-202500577.html?guccounter=1&guce_referrer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8&guce_referrer_sig=AQAAAHJ_hNx3JA-vEPNVKWR8g8qK-Dkn4qFx-SWUukDlUGgCjlrPtdHJmw2zObdunYK1EJD9D6reZ8dIY_HTK5eFqpqqhVLDDbkkX2gYaOJVj0sY-tD1JWrRQTorI4Kkaa6-tW2FsbMrVusmim3tb7ju1NSeIwOByT7P5FAmzrEY0h_w
     https://finance.yahoo.com/news/buffett-indicator-202500577.html
         https://finance.yahoo.com/quote/%5EW5000?p=%5EW5000
-        
+    - dane: https://www.longtermtrends.net/market-cap-to-gdp-the-buffett-indicator/    
 * wskaznik sentymentu
     https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
 * Breadth Indicator - liczba akcji wzrostowych
 * zastanowicc sie czy optymalizowac param_atr_base (teraz na sztywnon param_atr_base = 14)
+* wielkie krachy (wybrane w USA): https://www.youtube.com/watch?v=VDBUPjD9ekA&t=6s
+    1929-1932; wielki kryzys; czas wyjscia 15 lat
+    2000; banka internetowa (NASDAQ); czas wyjscia 15 lat
+    2007; globalny kryzys finansowy (S&P 500); czas wyjscia 4 lata
+    2020; pandemia Covid-19; czas wyjscia 6 m-czy
+    jeszcze wykres finansowej fortecy    
+[done] * dodanie OHLC do outputu predykcji do XLSX
+[done] * wyplucie predykcji do TXT
+[done] * sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki
+[done] * usrednienie predykcji target (np. spojrzenie na ostatnie 3 dni - jezeli w kazdym dniu byl target = 1 to wtedy dopiero predykcja 1)
+[done] * predykcja
+[done] * weryfikacja czy ewaluacja jest poprawna (na pryzkladzie OOT)
+[done] * RL bez upsample
+[done] * konfiguracja ktore modele sa trenowanie
+[done] * konfiguracja czy trenowanie czy tylko predykcja
+[done] * konfiguracjja wyboru OOT (data odciecia)
+[done] * ensembling (srednia arytmetyczna, wazona F1 score OOF/OOT, voting)
+
+* https://machinelearningmastery.com/gradient-boosting-with-scikit-learn-xgboost-lightgbm-and-catboost/
+** https://machinelearningmastery.com/configure-gradient-boosting-algorithm/
+** https://machinelearningmastery.com/light-gradient-boosted-machine-lightgbm-ensemble/
+** https://xgboost.readthedocs.io/en/latest/parameter.html#parameters-for-tree-booster
 [done] * uwzglednij prowizje przy nadawaniu label
 [done] * XGB ma jakis parametr dla niezbilansowanego zbioru
 [done] * Usuniecie duplikatów, wysoko korelacji – filtr na podstawie macierzy korelacji

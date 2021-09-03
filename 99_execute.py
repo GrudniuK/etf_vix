@@ -12,8 +12,8 @@ else: training_flag = '???'
 #ponizsza flaga ustawiana jako paramatr w BAT
 #training_flag = False #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
-models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
-#models_list = ['LightGBM'] #lista modeli
+#models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
+models_list = ['LightGBM'] #lista modeli
 
 
 # pozyskanie danych OHCL:
@@ -39,6 +39,7 @@ import _02_utils_target as utils_target
 import _03_utils_features as utils_features
 import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
+import _06_prophet as utils_prophet
 #reload(utils_models)
 
 
@@ -165,15 +166,52 @@ print(pd_df_target['target'].value_counts(normalize=False))
 
 #generowanie featersow
 
+############################################
+#prophet
+
+#wczytanie danych historycznych
+prophet_output_df_old = pd.read_pickle('./_models/prophet_prediction.pickle')
+prophet_output_df_old.shape
+prophet_dates_list_old = list(prophet_output_df_old.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
+#prophet_dates_list_old = prophet_dates_list_old[:-3] #usuniecie trzech ostatnich dat ma na celu zapewnienie ze bazujemy na calych dniach
+
+#daty z bazowej tabeli
+prophet_dates_list = list(pd_df_base.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
+prophet_dates_list = list(pd_df_base[pd_df_base.index >= '1990-01-01'].reset_index()['Date'].dt.strftime('%Y-%m-%d'))
+#prophet_dates_list = [x for x in prophet_dates_list if x.startswith('199')]
+
+#wygenerowanie danych dla brakujacych dat
+prophet_dates_list_new = [x for x in prophet_dates_list if x not in prophet_dates_list_old]
+prophet_output_list_new = [utils_prophet.prophet_features(df = copy.copy(pd_df_base), yyyymmdd = x, initial_no_of_days = 500, future_no_of_days = 30, tuple_target_param = tuple_target_param) for x in prophet_dates_list_new]
+prophet_output_df_new = pd.concat(prophet_output_list_new).set_index('Date')
+
+#polaczenie danych
+prophet_output_df_all = pd.concat([prophet_output_df_old, prophet_output_df_new]).sort_index()
+
+#zapis danych
+#pickle.dump((clf_final, oot_score, str(current_date)), open(path_output + '/' + model_iter + '.model', 'wb'))
+pickle.dump(prophet_output_df_all, open('./_models/prophet_prediction.pickle', 'wb')) #zapis do folderu z modelami
+pickle.dump(prophet_output_df_all, open(path_output + '/prophet_prediction.pickle', 'wb')) #zapis do folderu z data
+
+"""
+prophet_output_df_old.columns
+prophet_output_df_old[['prophet_mape']].plot()
+plt.show()
+"""
+#zrobic jeszcze analize korelacji
+
+############################################
+
 #na podstawie pd_df_base
 pd_df_base_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_base), prefix='base_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
 #pd_df_base_features.to_pickle(path_output + '/pd_df_base_features.pickle')
 #pd_df_base_features = pd.read_pickle(path_output + '/pd_df_base_features.pickle')
 pd_df_base_features.shape
+pd_df_base_features.columns
 
 #na podstawie pd_df_vix
 pd_df_vix_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_vix), prefix='vix_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
-#pd_df_vix_features.to_pickle(path_output + '/pd_df_vix_features.pickle')
+#pd_df_vix_features.to_pickle(path_output + '/pd_df_vix_features.pickle')11111111111
 #pd_df_vix_features = pd.read_pickle(path_output + '/pd_df_vix_features.pickle')
 pd_df_vix_features.shape
 
@@ -204,6 +242,7 @@ pd_df_abt = pd_df_abt.join(pd_df_dollar_features, how="left")
 pd_df_abt = pd_df_abt.join(pd_df_base_lag_pr, how="left")
 pd_df_abt = pd_df_abt.join(pd_df_dollar_lag_pr, how="left")
 pd_df_abt = pd_df_abt.join(pd_df_vix_lag_pr, how="left")
+pd_df_abt = pd_df_abt.join(prophet_output_df_all, how="left")
 
 #pd_df_abt.shape
 #pd_df_abt.columns
