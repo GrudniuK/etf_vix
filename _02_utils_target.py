@@ -117,23 +117,23 @@ def target_evaluate (df: pd.DataFrame, target_variable: str, transaction_cost: f
     cagr_strategy_without_costs = np.exp(df.log_return_strategy.sum()) - 1
     cagr_strategy_with_costs = np.exp(df.log_return_strategy.sum() + cnt_change * np.log(1-transaction_cost)) - 1
 
-    df_out = pd.DataFrame(data = {
-        'target_variable':[target_variable],
-        'cnt_days':[cnt_days], 
-        'cnt_change':[cnt_change], 
-        'cagr_benchmark':[cagr_benchmark], 
-        'cagr_'+target_variable+'_without_costs':[cagr_strategy_without_costs],
-        'cagr_'+target_variable+'_with_costs':[cagr_strategy_with_costs]
-        })
-
     #df_out = pd.DataFrame(data = {
     #    'target_variable':[target_variable],
     #    'cnt_days':[cnt_days], 
     #    'cnt_change':[cnt_change], 
     #    'cagr_benchmark':[cagr_benchmark], 
-    #    'cagr_target_without_costs':[cagr_strategy_without_costs],
-    #    'cagr_target_with_costs':[cagr_strategy_with_costs]
-    #})
+    #    'cagr_'+target_variable+'_without_costs':[cagr_strategy_without_costs],
+    #    'cagr_'+target_variable+'_with_costs':[cagr_strategy_with_costs]
+    #    })
+
+    df_out = pd.DataFrame(data = {
+        'target_variable':[target_variable],
+        'cnt_days':[cnt_days], 
+        'cnt_change':[cnt_change], 
+        'cagr_benchmark':[cagr_benchmark], 
+        'cagr_target_without_costs':[cagr_strategy_without_costs],
+        'cagr_target_with_costs':[cagr_strategy_with_costs]
+    })
     
     return (df_out, df[['cagr_benchmark', 'cagr_'+target_variable+'_with_costs']])
 
