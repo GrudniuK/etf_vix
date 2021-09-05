@@ -16,18 +16,19 @@ jak bedzie dobrze dzialalo to mozna to zwiekszyc stosujac levarowanie
 
 
 na pozniej:
-* fbprophet
+* przerobic target evaluate - jezeli jest sygnal do sprzedazy to sprzedajemy po Open dnia nastepnego, jezeli jest sygnal kupna to analogicznie. Moze trzeba wyliczyc nowa zmienna oparta na dzienna stope zwrotu?
+[done] * fbprophet
     https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
     stworzyc funkcje ktora bedziie zwracac liste datadla ktorych trzeba wyliczyc prophet
 * Klasteryzacja OHLC (przedzielenie przez Close da wymiar R3)
-* Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
+done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
 * Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
 * Fractal Indicator: https://www.investopedia.com/terms/f/fractal.asp
 * dodac do podsumowania roczne stopy zwrotu
 * dodac do podsumowania maksymalne obsuniecie
     https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
     https://quant.stackexchange.com/questions/18094/how-can-i-calculate-the-maximum-drawdown-mdd-in-python/18101
-* majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
+done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
 * na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii (lub wogole okresy pandemii)
 * logowanie
 * czy w labels_generate parametr smooth nie dawac tylko na przod?

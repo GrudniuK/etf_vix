@@ -44,6 +44,8 @@ def sma_short_long(df: pd.DataFrame, prefix: str, column_name: str, sma_window_s
 
     return df
 
+
+#niewykorzystywane
 def macd_add_features(df: pd.DataFrame, prefix: str, macd_window_slow: int, macd_window_fast: int, macd_window_sign: int) -> pd.DataFrame:
     """
     generuje zmienne w oparciu o MACD
@@ -72,6 +74,8 @@ def macd_add_features(df: pd.DataFrame, prefix: str, macd_window_slow: int, macd
     
     return df
 
+
+#nie wykorzystywane
 def rsi_add_features(df: pd.DataFrame, prefix: str, rsi_window: int) -> pd.DataFrame:
     """
     generuje zmienne w oparciu o RSI
@@ -93,6 +97,8 @@ def rsi_add_features(df: pd.DataFrame, prefix: str, rsi_window: int) -> pd.DataF
     df[prefix+'_RSI_'+str(rsi_window)] = ta.momentum.RSIIndicator(df['Close'], rsi_window).rsi()
     
     return df
+
+
 
 def add_all_ta_features_extended(df: pd.DataFrame, prefix: str, open: str, high: str, low: str, close: str, volume: str, fillna: bool) -> pd.DataFrame:
     """
@@ -134,11 +140,23 @@ def add_all_ta_features_extended(df: pd.DataFrame, prefix: str, open: str, high:
     df['my_trend_macd_diff_5_35_5'] = macd_object.macd_diff()
     df['my_trend_macd_signal_5_35_5'] = macd_object.macd_signal()
 
+    #dodanie zmiennych opartych o channel
+    df = channel_features(df = df, prefix = 'Keltner_Channel', high_band = 'volatility_kch', low_band = 'volatility_kcl', current_value = 'Close', sma_window_short = 5, sma_window_long = 20)
+    df = channel_features(df = df, prefix = 'Bollinger_Bands', high_band = 'volatility_bbh', low_band = 'volatility_bbl', current_value = 'Close', sma_window_short = 5, sma_window_long = 20)
+    df = channel_features(df = df, prefix = 'Donchian_Channels', high_band = 'volatility_dch', low_band = 'volatility_dcl', current_value = 'Close', sma_window_short = 5, sma_window_long = 20)
+
+    #dodanie dodatkowych zmiennych na podstawie dokumentacji TA
+    df['my_adx_pos_neg'] = df['trend_adx_pos'] / df['trend_adx_neg']
+    df['my_aroon_up_down'] = df['trend_aroon_up'] / df['trend_aroon_down']
+    df['my_psar_up'] = df['Close'] / df['trend_psar_up']
+    df['my_psar_down'] = df['trend_psar_down'] / df['Close']
+
     #usuniecie zbednych zmiennych
     df = df.drop(['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'], axis='columns')    
     #dodanie prefix
     df = df.add_prefix(prefix)
     return df
+    #zastanowic sie nad Ichimoku Clouds
 
 
 
@@ -255,27 +273,7 @@ def channel_features(df: pd.DataFrame, prefix: str, high_band: str, low_band: st
         obiekt wejsciowy z dodatkowymi zmiennymi z prefixem
     """
 
-
-    """
-    prefix = 'Keltner_Channel'
-    high_band = 'base_volatility_kch'
-    low_band = 'base_volatility_kcl'
-    current_value = 'Close'
-
-    sma_window_short=5
-    sma_window_long=20
-    """
-
     var_name = prefix + '_min_max'
     df[var_name] = (df[current_value] - df[low_band]) / (df[high_band] - df[low_band]) #wyliczenie zmiennej w oparciu o granice gorna i dolna
     df = sma_short_long(df=df, prefix='', column_name=var_name, sma_window_short=sma_window_short, sma_window_long=sma_window_long)
     return df
-
-"""
-powyzsze można wywolywac na liscie toupli
-
-channels_list = [
-    ('Keltner_Channel','base_volatility_kch','base_volatility_kcl','Close')
-]
-"""
-

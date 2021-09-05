@@ -30,11 +30,6 @@ from sklearn.metrics import r2_score, mean_absolute_percentage_error
 import _02_utils_target as utils_target
 
 """
-import os
-os.environ['PATH']
-"""
-
-"""
 #sprawdzenie czy pystan zostal poprawnie zainstalowany i dziala
 #https://github.com/facebook/prophet/issues/1790
 import pystan
@@ -44,27 +39,7 @@ y = model.sampling(n_jobs=1).extract()['y']
 y.mean()  # should be close to 0
 """
 
-"""
-df = yf.Ticker("^GSPC").history(start="2019-08-01")
 
-tuple_target_param = (1,3,4) #do generowania targetu
-
-
-prophet_dates_list_old = list(df.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
-prophet_dates_list_new = prophet_dates_list_old[-5:]
-
-prophet_output_list = [prophet_features(df = copy.copy(df), yyyymmdd = yyyymmdd, initial_no_of_days = 255, future_no_of_days = 30, tuple_target_param = (1,3,4)) for yyyymmdd in prophet_dates_list_new]
-
-prophet_output_df = pd.concat(prophet_output_list)
-
-prophet_features(
-    df = copy.copy(df), 
-    yyyymmdd = '2021-08-19', 
-    initial_no_of_days = 255, 
-    future_no_of_days = 30, 
-    tuple_target_param = (1,3,4)
-    )
-"""
 
 def prophet_features(df: pd.DataFrame, yyyymmdd: str, initial_no_of_days: int, future_no_of_days: int, tuple_target_param: tuple) -> pd.DataFrame:
     """
@@ -88,13 +63,6 @@ def prophet_features(df: pd.DataFrame, yyyymmdd: str, initial_no_of_days: int, f
     df: pd.DataFrame
         prognoza z modelu prophet wraz z miarami dopaskowania na ziorze train
 
-    """
-
-    """
-    yyyymmdd = "2021-08-13" # data dla ktorej chcemy pozyskac informacje
-    initial_no_of_days = 255 #liczba sesji na ktorej budowany jest model
-    future_no_of_days = 30
-    tuple_target_param = (1,3,4) #do generowania targetu
     """
 
     df_ts_all = df[df.index <= yyyymmdd].tail(initial_no_of_days)

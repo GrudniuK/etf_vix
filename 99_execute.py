@@ -16,8 +16,6 @@ optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja tar
 models_list = ['LightGBM'] #lista modeli
 
 
-# pozyskanie danych OHCL:
-#https://blog.quantinsti.com/historical-market-data-python-api/
 
 from typing import Counter
 import yfinance as yf
@@ -71,8 +69,6 @@ pd_df_base = yf.Ticker("^GSPC").history(start="1985-01-01")
 
 #pd_df_base.to_pickle(path_output + '/pd_df_base.pickle')
 #pd_df_base = pd.read_pickle(path_output + '/pd_df_base.pickle')
-
-#wyszukanie na BOSSA po frazie "500"
 
 """
 Wybrany zostal ^GSPC poniewaz:
@@ -166,12 +162,11 @@ print(pd_df_target['target'].value_counts(normalize=False))
 
 #generowanie featersow
 
-############################################
-#prophet
+### prophet
 
 #wczytanie danych historycznych
 prophet_output_df_old = pd.read_pickle('./_models/prophet_prediction.pickle')
-prophet_output_df_old.shape
+prophet_output_df_old.columns
 prophet_dates_list_old = list(prophet_output_df_old.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
 prophet_dates_list_old = prophet_dates_list_old[:-3] #usuniecie trzech ostatnich dat ma na celu zapewnienie ze bazujemy na calych dniach
 
@@ -189,18 +184,10 @@ prophet_output_df_new = pd.concat(prophet_output_list_new).set_index('Date')
 prophet_output_df_all = pd.concat([prophet_output_df_old, prophet_output_df_new]).sort_index()
 
 #zapis danych
-#pickle.dump((clf_final, oot_score, str(current_date)), open(path_output + '/' + model_iter + '.model', 'wb'))
 pickle.dump(prophet_output_df_all, open('./_models/prophet_prediction.pickle', 'wb')) #zapis do folderu z modelami
 pickle.dump(prophet_output_df_all, open(path_output + '/prophet_prediction.pickle', 'wb')) #zapis do folderu z data
 
-"""
-prophet_output_df_old.columns
-prophet_output_df_old[['prophet_mape']].plot()
-plt.show()
-"""
-#zrobic jeszcze analize korelacji
 
-############################################
 
 #na podstawie pd_df_base
 pd_df_base_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_base), prefix='base_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
@@ -355,3 +342,4 @@ print('Koniec!')
 #################################
 #if __name__ == "__main__":
 
+    
