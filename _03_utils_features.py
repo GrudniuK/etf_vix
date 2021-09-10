@@ -277,3 +277,70 @@ def channel_features(df: pd.DataFrame, prefix: str, high_band: str, low_band: st
     df[var_name] = (df[current_value] - df[low_band]) / (df[high_band] - df[low_band]) #wyliczenie zmiennej w oparciu o granice gorna i dolna
     df = sma_short_long(df=df, prefix='', column_name=var_name, sma_window_short=sma_window_short, sma_window_long=sma_window_long)
     return df
+
+
+
+def counter_features(df: pd.DataFrame, prefix: str, open: str, high: str, low: str, close: str, window: int) -> pd.DataFrame:
+    """
+    generuje zmienne w oparciu o Counter Indicator
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        obiekt OHLCV wejsciowy
+    prefix: str
+        prefix do generowanych zmiennych (zwykle ticker)
+    open: str
+    high: str
+    low: str
+    close: str
+    window: str
+    
+    Returns
+    -------
+    df: pd.DataFrame
+        obiekt wejsciowy z dodatkowymi zmiennymi z prefixem
+    """
+
+    columns_to_drop = list(df.columns)
+
+    df['upside_pressure_1']=np.where(df[close] > df[open], 1, 0)
+    df['upside_pressure_2']=np.where(df[high] > df[high].shift(1), 1, 0)
+    df['upside_pressure']=df['upside_pressure_1'] + df['upside_pressure_2']
+
+    df['downside_pressure_1']=np.where(df[close] < df[open], 1, 0)
+    df['downside_pressure_2']=np.where(df[low] < df[low].shift(1), 1, 0)
+    df['downside_pressure']=df['downside_pressure_1'] + df['downside_pressure_2']
+
+    df['upside_pressure_sma_' + str(window)] = ta.trend.sma_indicator(df['upside_pressure'], window=window, fillna=False)
+    df['downside_pressure_sma_' + str(window)] = ta.trend.sma_indicator(df['downside_pressure'], window=window, fillna=False)
+
+    df['countdown_indicator_raw'] = df['upside_pressure_sma_' + str(window)] - df['downside_pressure_sma_' + str(window)]
+    df['countdown_indicator_raw_upper'] = df['countdown_indicator_raw'].rolling(window=window).max()
+    df['countdown_indicator_raw_lower'] = df['countdown_indicator_raw'].rolling(window=window).min()
+    df = channel_features(
+        df=df, prefix='countdown_indicator_raw', 
+        high_band='countdown_indicator_raw_upper', 
+        low_band='countdown_indicator_raw_lower', 
+        current_value='countdown_indicator_raw', 
+        sma_window_short=window, 
+        sma_window_long=(window+5))
+
+    df['countdown_indicator_ema_' + str(window)] = ta.trend.sma_indicator(df['countdown_indicator_raw'], window=window, fillna=False)
+    df['countdown_indicator_ema_' + str(window) + '_upper'] = df['countdown_indicator_ema_' + str(window)].rolling(window=window).max()
+    df['countdown_indicator_ema_' + str(window) + '_lower'] = df['countdown_indicator_ema_' + str(window)].rolling(window=window).min()
+    df = channel_features(
+        df=df, prefix='countdown_indicator_ema_' + str(window), 
+        high_band='countdown_indicator_ema_' + str(window) + '_upper', 
+        low_band='countdown_indicator_ema_' + str(window) + '_lower', 
+        current_value='countdown_indicator_ema_' + str(window), 
+        sma_window_short=window, 
+        sma_window_long=(window+5))
+
+    df = df.drop(columns = columns_to_drop)
+    #dodanie prefix
+    df = df.add_prefix(prefix)
+
+    return df
+
+

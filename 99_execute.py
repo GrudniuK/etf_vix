@@ -38,7 +38,7 @@ import _03_utils_features as utils_features
 import _04_utils_abt_dev_oot as utils_abt_dev_oot
 import _05_utils_models as utils_models
 import _06_prophet as utils_prophet
-#reload(utils_models)
+#reload(utils_features)
 
 
 
@@ -216,6 +216,16 @@ pd_df_base_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_base[['Close']]),
 pd_df_dollar_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_dollar[['Close']]), prefix = 'dollar_Close_lag_pr_', param_days = 7)
 pd_df_vix_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_vix[['Close']]), prefix = 'vix_Close_lag_pr_', param_days = 7)
 
+#generowanei danych w oparciu o counter
+pd_df_base_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_base), prefix='base_5_', open='Open', high='High', low='Low', close='Close', window=5)
+pd_df_base_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_base), prefix='base_10_', open='Open', high='High', low='Low', close='Close', window=10)
+
+pd_df_dollar_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_5_', open='Open', high='High', low='Low', close='Close', window=5)
+pd_df_dollar_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_10_', open='Open', high='High', low='Low', close='Close', window=10)
+
+pd_df_vix_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_vix), prefix='vix_5_', open='Open', high='High', low='Low', close='Close', window=5)
+pd_df_vix_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_vix), prefix='vix_10_', open='Open', high='High', low='Low', close='Close', window=10)
+
 #przygotwanie ABT
 pd_df_vix_features.shape
 pd_df_abt = pd_df_base_features.join(pd_df_vix_features, how="inner")
@@ -230,6 +240,13 @@ pd_df_abt = pd_df_abt.join(pd_df_base_lag_pr, how="left")
 pd_df_abt = pd_df_abt.join(pd_df_dollar_lag_pr, how="left")
 pd_df_abt = pd_df_abt.join(pd_df_vix_lag_pr, how="left")
 pd_df_abt = pd_df_abt.join(prophet_output_df_all, how="left")
+
+pd_df_abt = pd_df_abt.join(pd_df_base_counter_5, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_base_counter_10, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_dollar_counter_5, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_dollar_counter_10, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_vix_counter_5, how="left")
+pd_df_abt = pd_df_abt.join(pd_df_vix_counter_10, how="left")
 
 #pd_df_abt.shape
 #pd_df_abt.columns
