@@ -16,13 +16,14 @@ jak bedzie dobrze dzialalo to mozna to zwiekszyc stosujac levarowanie
 
 
 na pozniej:
+[done] * przyjrze sie dollar
 * przerobic target evaluate - jezeli jest sygnal do sprzedazy to sprzedajemy po Open dnia nastepnego, jezeli jest sygnal kupna to analogicznie. Moze trzeba wyliczyc nowa zmienna oparta na dzienna stope zwrotu?
 [done] * fbprophet
     https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
     stworzyc funkcje ktora bedziie zwracac liste datadla ktorych trzeba wyliczyc prophet
 * Klasteryzacja OHLC (przedzielenie przez Close da wymiar R3)
-done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
-* Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
+[done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
+[done] * Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
 * Fractal Indicator: https://www.investopedia.com/terms/f/fractal.asp
 * dodac do podsumowania roczne stopy zwrotu
 * dodac do podsumowania maksymalne obsuniecie

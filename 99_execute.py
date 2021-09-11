@@ -213,15 +213,15 @@ pd_df_dollar_features.shape
 
 #generowanie zmiennych na podstawie lag
 pd_df_base_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_base[['Close']]), prefix = 'base_Close_lag_pr_', param_days = 7)
-pd_df_dollar_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_dollar[['Close']]), prefix = 'dollar_Close_lag_pr_', param_days = 7)
+pd_df_dollar_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_dollar[['Close_dollar']]), prefix = 'dollar_Close_lag_pr_', param_days = 7)
 pd_df_vix_lag_pr = utils_features.lag_pr(df = copy.copy(pd_df_vix[['Close']]), prefix = 'vix_Close_lag_pr_', param_days = 7)
 
 #generowanei danych w oparciu o counter
 pd_df_base_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_base), prefix='base_5_', open='Open', high='High', low='Low', close='Close', window=5)
 pd_df_base_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_base), prefix='base_10_', open='Open', high='High', low='Low', close='Close', window=10)
 
-pd_df_dollar_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_5_', open='Open', high='High', low='Low', close='Close', window=5)
-pd_df_dollar_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_10_', open='Open', high='High', low='Low', close='Close', window=10)
+pd_df_dollar_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_5_', open='Open_dollar', high='High_dollar', low='Low_dollar', close='Close_dollar', window=5)
+pd_df_dollar_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_dollar), prefix='dollar_10_', open='Open_dollar', high='High_dollar', low='Low_dollar', close='Close_dollar', window=10)
 
 pd_df_vix_counter_5 = utils_features.counter_features(df=copy.copy(pd_df_vix), prefix='vix_5_', open='Open', high='High', low='Low', close='Close', window=5)
 pd_df_vix_counter_10 = utils_features.counter_features(df=copy.copy(pd_df_vix), prefix='vix_10_', open='Open', high='High', low='Low', close='Close', window=10)
@@ -263,6 +263,7 @@ to_drop
 pd_df_abt = pd_df_abt.join(pd_df_target, how="left")
 #pd_df_abt.to_pickle(path_output + '/pd_df_abt.pickle')
 #pd_df_abt = pd.read_pickle(path_output + '/pd_df_abt.pickle')
+pd_df_abt.replace([np.inf, -np.inf], np.nan, inplace=True)
 
 #wygenerowanie podsumowania dla ABT
 pd_df_abt_describe = utils_abt_dev_oot.abt_summary(pd_df_abt)
