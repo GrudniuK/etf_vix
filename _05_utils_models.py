@@ -339,11 +339,22 @@ def model_evaluate(pd_df_prediction: pd.DataFrame, pd_df_base: pd.DataFrame, mod
     -------
     None
     """
-    
+
+    """
+        pd_df_prediction = pickle.load(open('./20210911/LightGBM_prediction.pickle', 'rb'))
+        model_name='LightGBM'
+        transaction_cost
+    """
+
     #dopisanie  CLose
     pd_df_prediction = pd_df_prediction.join(pd_df_base[['Close']])
 
-    #przygotowanie podsumowania i wykresow
+
+
+
+        
+
+    #przygotowanie podsumowania i wykresow dla probek
     df_model_summary = pd.DataFrame()
     for sample, row in zip([['out_of_fold','out_of_time'], ['out_of_fold'], ['out_of_time']], [0, 25, 50]):
         #print(type(str(sample)), row)
@@ -373,6 +384,34 @@ def model_evaluate(pd_df_prediction: pd.DataFrame, pd_df_base: pd.DataFrame, mod
     #zapisanie wynikow do XLSX
     df_model_summary.to_excel(writer, sheet_name=model_name, startrow=0, startcol=0)
     #plt.close("all")
+
+    #przygotowanie podsumowania dla lat
+    pd_df_prediction['year'] = pd_df_prediction.index.year
+    df_model_summary_year = pd.DataFrame()
+    
+    for sample in list(pd_df_prediction['year'].unique()):
+    
+        df_tmp = pd_df_prediction[pd_df_prediction['year'] == sample]
+
+        df_tmp_target = utils_target.target_evaluate(copy.copy(df_tmp), 'target', transaction_cost)
+        df_tmp_target_0 = df_tmp_target[0]
+        df_tmp_target_0['year'] = str(sample)
+
+        df_tmp_model = utils_target.target_evaluate(copy.copy(df_tmp), model_name + '_pred', transaction_cost)
+        df_tmp_model_0 = df_tmp_model[0]
+        df_tmp_model_0['year'] = str(sample)
+
+        df_model_summary_year = pd.concat([df_model_summary_year, df_tmp_target_0, df_tmp_model_0]) # do XLSX
+    #to jeszcze trzeba przertransformowac!!!
+    df_model_summary_year.columns
+    df_model_summary_year.set_index(keys = 'year', inplace = True)
+
+    df_model_summary_year_fin = pd.concat([
+        df_model_summary_year[df_model_summary_year['target_variable'] == 'target'][['cnt_days','cagr_benchmark','cnt_change','cagr_target_without_costs','cagr_target_with_costs']],
+        df_model_summary_year[df_model_summary_year['target_variable'] == model_name + '_pred'][['cnt_change','cagr_target_without_costs','cagr_target_with_costs']].add_prefix(model_name + '_')
+    ], axis = 1)
+    df_model_summary_year_fin.to_excel(writer, sheet_name=model_name, startrow=0, startcol=40)
+
     return None
 
 
@@ -529,5 +568,3 @@ def ensemble_evaluate(pd_df_ensemble: pd.DataFrame, pd_df_base: pd.DataFrame, tr
     
     #plt.close("all")
     return None
-
-    
