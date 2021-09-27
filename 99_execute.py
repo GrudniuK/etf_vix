@@ -166,9 +166,8 @@ print(pd_df_target['target'].value_counts(normalize=False))
 
 #wczytanie danych historycznych
 prophet_output_df_old = pd.read_pickle('./_models/prophet_prediction.pickle')
-prophet_output_df_old.columns
+prophet_output_df_old = prophet_output_df_old[:-50] #usuniecie trzech ostatnich dat ma na celu zapewnienie ze bazujemy na calych dniach
 prophet_dates_list_old = list(prophet_output_df_old.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
-prophet_dates_list_old = prophet_dates_list_old[:-3] #usuniecie trzech ostatnich dat ma na celu zapewnienie ze bazujemy na calych dniach
 
 #daty z bazowej tabeli
 prophet_dates_list = list(pd_df_base.reset_index()['Date'].dt.strftime('%Y-%m-%d'))
@@ -360,4 +359,7 @@ print('Koniec!')
 #################################
 #if __name__ == "__main__":
 
+#kg
+#tmp = prophet_output_df_all.groupby(level='Date').size().reset_index(name='cnt')
+#tmp[tmp.cnt > 1].shape
     

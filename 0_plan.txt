@@ -25,11 +25,11 @@ na pozniej:
 [done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
 [done] * Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
 * Fractal Indicator: https://www.investopedia.com/terms/f/fractal.asp
-* dodac do podsumowania roczne stopy zwrotu
+[done] * dodac do podsumowania roczne stopy zwrotu
 * dodac do podsumowania maksymalne obsuniecie
     https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
     https://quant.stackexchange.com/questions/18094/how-can-i-calculate-the-maximum-drawdown-mdd-in-python/18101
-done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
+[done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
 * na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii (lub wogole okresy pandemii)
 * logowanie
 * czy w labels_generate parametr smooth nie dawac tylko na przod?
@@ -48,7 +48,8 @@ done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) polic
     2000; banka internetowa (NASDAQ); czas wyjscia 15 lat
     2007; globalny kryzys finansowy (S&P 500); czas wyjscia 4 lata
     2020; pandemia Covid-19; czas wyjscia 6 m-czy
-    jeszcze wykres finansowej fortecy    
+    jeszcze wykres finansowej fortecy
+    https://bithub.pl/opinie/najwieksze-krachy-na-gieldzie-a-sp-500-czy-czeka-nas-kolejna-fala-spadkow/    
 [done] * dodanie OHLC do outputu predykcji do XLSX
 [done] * wyplucie predykcji do TXT
 [done] * sprawdzic czy przy tworzeniu ABT (laczeniu danych) nie tworza sie braki

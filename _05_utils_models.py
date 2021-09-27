@@ -402,15 +402,49 @@ def model_evaluate(pd_df_prediction: pd.DataFrame, pd_df_base: pd.DataFrame, mod
         df_tmp_model_0['year'] = str(sample)
 
         df_model_summary_year = pd.concat([df_model_summary_year, df_tmp_target_0, df_tmp_model_0]) # do XLSX
-    #to jeszcze trzeba przertransformowac!!!
-    df_model_summary_year.columns
+    
+    #przygotowaie danych do XLSX
     df_model_summary_year.set_index(keys = 'year', inplace = True)
-
     df_model_summary_year_fin = pd.concat([
         df_model_summary_year[df_model_summary_year['target_variable'] == 'target'][['cnt_days','cagr_benchmark','cnt_change','cagr_target_without_costs','cagr_target_with_costs']],
         df_model_summary_year[df_model_summary_year['target_variable'] == model_name + '_pred'][['cnt_change','cagr_target_without_costs','cagr_target_with_costs']].add_prefix(model_name + '_')
     ], axis = 1)
     df_model_summary_year_fin.to_excel(writer, sheet_name=model_name, startrow=0, startcol=40)
+
+    #przygotowanie podsumowania i wykresow dla najwiekszych krachow
+    pd_df_prediction['krach'] = 'brak'
+    pd_df_prediction['krach'] = np.where((pd_df_prediction.index >= '2000-01-01') & (pd_df_prediction.index <= '2007-05-30'), 'Dot Com Bubble', pd_df_prediction['krach'] )
+    pd_df_prediction['krach'] = np.where((pd_df_prediction.index >= '2007-06-01') & (pd_df_prediction.index <= '2013-03-28'), 'Global Financial Crisis', pd_df_prediction['krach'] )
+    pd_df_prediction['krach'] = np.where((pd_df_prediction.index >= '2020-01-01') & (pd_df_prediction.index <= '2021-12-31'), 'COVID-19 Crash', pd_df_prediction['krach'] )
+
+    df_model_summary = pd.DataFrame()
+    for sample, row in zip(['Dot Com Bubble','Global Financial Crisis','COVID-19 Crash'], [0, 25, 50]):
+        #print(type(str(sample)), row)
+
+        df_tmp = pd_df_prediction[pd_df_prediction['krach'] == sample]
+
+        df_tmp_target = utils_target.target_evaluate(copy.copy(df_tmp), 'target', transaction_cost)
+        df_tmp_target_0 = df_tmp_target[0]
+        df_tmp_target_0['sample'] = str(sample)
+
+        df_tmp_model = utils_target.target_evaluate(copy.copy(df_tmp), model_name + '_pred', transaction_cost)
+        df_tmp_model_0 = df_tmp_model[0]
+        df_tmp_model_0['sample'] = str(sample)
+
+        df_model_summary = pd.concat([df_model_summary, df_tmp_target_0, df_tmp_model_0]) # do XLSX
+
+        df_plot_by_time = df_tmp_target[1].join(df_tmp_model[1].drop('cagr_benchmark', axis='columns'))
+
+        #generowanie wykresow i zapis do XLSX
+        image_data = BytesIO()
+        fig, ax = plt.subplots(figsize=(12.8,4.8))
+        df_plot_by_time.plot(ax=ax)
+        fig.savefig(image_data)
+        worksheet = writer.sheets[model_name]
+        worksheet.insert_image(row, 60, 'tmp', {'image_data': image_data})
+
+    #zapisanie wynikow do XLSX
+    df_model_summary.to_excel(writer, sheet_name=model_name, startrow=0, startcol=50)
 
     return None
 
