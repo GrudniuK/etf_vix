@@ -337,6 +337,9 @@ for model_name in models_list:
 
 pd_df_prediction_new = utils_models.ensemble_generate(prediction_list = prediction_list, models_list=models_list)
 pd_df_prediction_new = pd_df_prediction_new.join(pd_df_base, how="left")
+
+pd_df_prediction_new_eval = utils_target.target_evaluate(copy.copy(pd_df_prediction_new), 'LightGBM_pred', transaction_cost)
+pd_df_prediction_new = pd_df_prediction_new.join(pd_df_prediction_new_eval[1], how="left")
 pd_df_prediction_new.to_excel(writer, sheet_name='prediction') 
 
 #generuj wersje modeli
@@ -352,7 +355,8 @@ pd_df_model_version.to_excel(writer, sheet_name='model_version')
 
 writer.save()
 
-print(pd_df_prediction_new[['LightGBM_pred','LightGBM_prob_1']])
+print(pd_df_prediction_new_eval[0])
+print(pd_df_prediction_new[['LightGBM_pred','LightGBM_prob_1','cagr_benchmark','cagr_LightGBM_pred_with_costs']])
 
 print('Koniec!')
 
