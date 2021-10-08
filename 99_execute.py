@@ -10,7 +10,7 @@ elif opts[0][1] == 'False': training_flag = False
 else: training_flag = '???'
 
 #ponizsza flaga ustawiana jako paramatr w BAT
-#training_flag = False #jezeli True to trenowane sa modele, jezeli nie to wykorzystywane sa poprzednie modele
+#optimize_target_flag = True
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
 #models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
 models_list = ['LightGBM'] #lista modeli
@@ -137,14 +137,16 @@ if optimize_target_flag == True:
     pd_df_target_optimize = utils_target.target_optimize(
         copy.copy(pd_df_base), 
         param_atr_factor=5, 
-        param_window=5, 
-        param_smooth=5, 
+        param_window=16, 
+        param_smooth=8, 
         transaction_cost=transaction_cost
         )
 
-    tuple_target_param = utils_target.target_optimize_set(copy.copy(pd_df_target_optimize), cnt_changes_per_year = 12, writer = writer, pd_df_base = copy.copy(pd_df_base), transaction_cost=transaction_cost)
+    tuple_target_param = utils_target.target_optimize_set(copy.copy(pd_df_target_optimize), cnt_changes_per_year = 6, writer = writer, pd_df_base = copy.copy(pd_df_base), transaction_cost=transaction_cost)
 else:
     tuple_target_param = (1,3,4)
+
+pd.DataFrame(tuple_target_param, index=['param_atr_factor', 'param_window', 'param_smooth']).to_excel(writer, sheet_name='tuple_target_param') 
 
 #generowanie targetu dla optymalnych parametrow i zapis
 pd_df_target = utils_target.target_generate(

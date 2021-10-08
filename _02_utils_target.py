@@ -106,13 +106,13 @@ def target_evaluate (df: pd.DataFrame, target_variable: str, transaction_cost: f
     cagr_benchmark = np.exp(df.log_return.sum()) - 1
 
     #strategia
-    df['log_return_strategy'] = np.where(df[target_variable] == 1, 0, df['log_return'])
-    df['log_return_strategy_with_costs'] = np.where(df[target_variable] == 1, 0, df['log_return'])
+    df['log_return_strategy'] = np.where(df[target_variable].shift() == 1, 0, df['log_return'])
+    df['log_return_strategy_with_costs'] = np.where(df[target_variable].shift() == 1, 0, df['log_return'])
     df['log_return_strategy_with_costs'] = np.where(df['target_change'] != 1, df['log_return_strategy_with_costs'], df['log_return_strategy_with_costs'] + np.log(1-transaction_cost))
 
     df['cagr_benchmark'] = np.exp(df.log_return.cumsum()) - 1
     df['cagr_'+target_variable+'_with_costs'] = np.exp(df.log_return_strategy_with_costs.cumsum()) - 1
-    df['cagr_'+target_variable+'_with_costs'] = np.where(df[target_variable] == 1, 0, df['cagr_'+target_variable+'_with_costs'])
+    #df['cagr_'+target_variable+'_with_costs'] = np.where(df[target_variable] == 1, 0, df['cagr_'+target_variable+'_with_costs'])
 
     cagr_strategy_without_costs = np.exp(df.log_return_strategy.sum()) - 1
     cagr_strategy_with_costs = np.exp(df.log_return_strategy.sum() + cnt_change * np.log(1-transaction_cost)) - 1
