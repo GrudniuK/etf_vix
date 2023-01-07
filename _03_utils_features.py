@@ -151,6 +151,11 @@ def add_all_ta_features_extended(df: pd.DataFrame, prefix: str, open: str, high:
     df['my_psar_up'] = df['Close'] / df['trend_psar_up']
     df['my_psar_down'] = df['trend_psar_down'] / df['Close']
 
+    #dodanie zmiennych dotyczacych swiec
+    df['my_o_pr_h'] = df['Open'] / df['High']
+    df['my_l_pr_h'] = df['Low'] / df['High']
+    df['my_c_pr_h'] = df['Close'] / df['High']
+
     #usuniecie zbednych zmiennych
     df = df.drop(['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'], axis='columns')    
     #dodanie prefix

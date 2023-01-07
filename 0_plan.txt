@@ -15,22 +15,29 @@ jak bedzie dobrze dzialalo to mozna to zwiekszyc stosujac levarowanie
 99. skopiuj skrypty do dziennego katalogu - czy potrzebne skoro jest GIT?
 
 
-na pozniej:
-[done] * przyjrze sie dollar
-* przerobic target evaluate - jezeli jest sygnal do sprzedazy to sprzedajemy po Open dnia nastepnego, jezeli jest sygnal kupna to analogicznie. Moze trzeba wyliczyc nowa zmienna oparta na dzienna stope zwrotu?
-[done] * fbprophet
-    https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
-    stworzyc funkcje ktora bedziie zwracac liste datadla ktorych trzeba wyliczyc prophet
+na pozniej
+
+base_my_o_pr_h
+base_my_l_pr_h
+base_my_c_pr_h
+
+* znormalizować (podzielić przez SD lub ATR). Może dopiero wtedy wyznaczyć target?
+* wyznaczanie dynamicznego progu dla ATR na podstawie wolummenu transakcji (znalezienie punktu ATR gdzie wszyscy zaczynaja sprzedawac)
+* Candlestick Patterns
+    https://medium.com/the-investors-handbook/backtesting-all-candlestick-patterns-which-is-the-best-72a0ea8afcb4
+    https://patternswizard.com/technical-analysis/patterns/candlestick-patterns/
+    https://mrjbq7.github.io/ta-lib/install.html
+    https://github.com/twopirllc/pandas-ta#installation
+    http://technical.traders.com/wm/display.asp?art=481
+    https://dokumen.tips/documents/trading-candlestick-patterns-with-volume-confirmation.html
+
+    import talib
+    import pandas_ta as ta
+    symbol = 'AAPL'
+    df = pd.read_csv(f'price_data/{symbol}.csv')
+    df.ta.cdl_pattern(name="all", append=True)
 * Klasteryzacja OHLC (przedzielenie przez Close da wymiar R3)
-[done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
-[done] * Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
 * Fractal Indicator: https://www.investopedia.com/terms/f/fractal.asp
-[done] * dodac do podsumowania roczne stopy zwrotu
-* dodac do podsumowania maksymalne obsuniecie
-    https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
-    https://quant.stackexchange.com/questions/18094/how-can-i-calculate-the-maximum-drawdown-mdd-in-python/18101
-[done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
-* na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii (lub wogole okresy pandemii)
 * logowanie
 * czy w labels_generate parametr smooth nie dawac tylko na przod?
 * Buffet Indicator
@@ -43,7 +50,21 @@ na pozniej:
     https://medium.com/swlh/using-python-to-download-sentiment-data-for-financial-trading-1c44346926e2
 * Breadth Indicator - liczba akcji wzrostowych
 * zastanowicc sie czy optymalizowac param_atr_base (teraz na sztywnon param_atr_base = 14)
-* wielkie krachy (wybrane w USA): https://www.youtube.com/watch?v=VDBUPjD9ekA&t=6s
+
+[done] * przyjrze sie dollar
+[done] * przerobic target evaluate - jezeli jest sygnal do sprzedazy to sprzedajemy po Open dnia nastepnego, jezeli jest sygnal kupna to analogicznie. Moze trzeba wyliczyc nowa zmienna oparta na dzienna stope zwrotu?
+[done] * fbprophet
+    https://pythondata.com/forecasting-time-series-data-with-prophet-part-1/
+    stworzyc funkcje ktora bedziie zwracac liste datadla ktorych trzeba wyliczyc prophet
+[done] * Keltner Channel: https://www.investopedia.com/terms/k/keltnerchannel.asp
+[done] * Countdown Indicator: https://medium.com/geekculture/the-countdown-indicator-a-new-tool-in-contrarian-trading-3648a5c20d5
+[done] * dodac do podsumowania roczne stopy zwrotu
+[done] * dodac do podsumowania maksymalne obsuniecie
+    https://www.investopedia.com/terms/m/maximum-drawdown-mdd.asp
+    https://quant.stackexchange.com/questions/18094/how-can-i-calculate-the-maximum-drawdown-mdd-in-python/18101
+[done] * majac grnice gorna i dolna (Bollinger bands, Donchain channel itp) policzyc srednia z (close - low) / (high - low)
+[done] * na potrzeby checku warto zobaczyc jak model ocenia poczatek pandemii (lub wogole okresy pandemii)
+[done] * wielkie krachy (wybrane w USA): https://www.youtube.com/watch?v=VDBUPjD9ekA&t=6s
     1929-1932; wielki kryzys; czas wyjscia 15 lat
     2000; banka internetowa (NASDAQ); czas wyjscia 15 lat
     2007; globalny kryzys finansowy (S&P 500); czas wyjscia 4 lata

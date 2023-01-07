@@ -12,8 +12,8 @@ else: training_flag = '???'
 #ponizsza flaga ustawiana jako paramatr w BAT
 #optimize_target_flag = True
 optimize_target_flag = False #flaga mowiaca czy ma byc robiona optymalizacja targetu
-#models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
-models_list = ['LightGBM'] #lista modeli
+models_list = ['LogisticRegression','XGBoost','LightGBM'] #lista modeli
+#models_list = ['LightGBM'] #lista modeli
 
 
 
@@ -85,8 +85,10 @@ GSPC.index.min()
 GSPC['GSPC'] = GSPC['Close']
 GSPC = GSPC[['GSPC']]
 
+
 VUAA = yf.Ticker("VUAA.L").history(period="max") 
 #Vanguard S&P 500 UCITS ETF acc USD (VUAA)
+#to jest ETF dostepny w Bossa
 #od 2019-05-14
 VUAA.tail(5)
 VUAA.index.min()
@@ -196,6 +198,39 @@ pd_df_base_features = utils_features.add_all_ta_features_extended(copy.copy(pd_d
 #pd_df_base_features = pd.read_pickle(path_output + '/pd_df_base_features.pickle')
 pd_df_base_features.shape
 pd_df_base_features.columns
+
+#pd_df_base_features.plot.scatter(x='base_my_o_pr_h', y='base_my_l_pr_h')
+#pd_df_base_features.plot.scatter(x='base_my_o_pr_h', y='base_my_c_pr_h')
+#pd_df_base_features.plot.scatter(x='base_my_l_pr_h', y='base_my_c_pr_h')
+#plt.show()
+
+# https://scikit-learn.org/stable/auto_examples/cluster/plot_optics.html#sphx-glr-auto-examples-cluster-plot-optics-py
+#from sklearn.cluster import OPTICS
+#clust = OPTICS(min_samples=50, xi=.05, min_cluster_size=.05)
+#clust.fit(pd_df_base_features[['base_my_o_pr_h','base_my_l_pr_h','base_my_c_pr_h']])
+#reachability = clust.reachability_[clust.ordering_]
+#labels = clust.labels_[clust.ordering_]
+
+# Reachability plot
+#colors = ['g.', 'r.', 'b.', 'y.', 'c.']
+#for klass, color in zip(range(0, 5), colors):
+#    Xk = space[labels == klass]
+#    Rk = reachability[labels == klass]
+#    ax1.plot(Xk, Rk, color, alpha=0.3)
+#ax1.plot(space[labels == -1], reachability[labels == -1], 'k.', alpha=0.3)
+#ax1.plot(space, np.full_like(space, 2., dtype=float), 'k-', alpha=0.5)
+#ax1.plot(space, np.full_like(space, 0.5, dtype=float), 'k-.', alpha=0.5)
+#ax1.set_ylabel('Reachability (epsilon distance)')
+#ax1.set_title('Reachability Plot')
+
+# OPTICS
+#colors = ['g.', 'r.', 'b.', 'y.', 'c.']
+#for klass, color in zip(range(0, 5), colors):
+#    Xk = X[clust.labels_ == klass]
+#    ax2.plot(Xk[:, 0], Xk[:, 1], color, alpha=0.3)
+#ax2.plot(X[clust.labels_ == -1, 0], X[clust.labels_ == -1, 1], 'k+', alpha=0.1)
+#ax2.set_title('Automatic Clustering\nOPTICS')
+
 
 #na podstawie pd_df_vix
 pd_df_vix_features = utils_features.add_all_ta_features_extended(copy.copy(pd_df_vix), prefix='vix_', open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
